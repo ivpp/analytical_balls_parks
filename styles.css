@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Open Sans', sans-serif;
+  color: #fff;
+  /* background: #222; */
+  /* width: 800px;
+  height: 600px; */
+  background-image: url("backgroupnd.jpg");
+  background-size: cover;
+}
+
+.canvas_background {
+    margin: 0;
+    padding: 0;
+    /* background-image: url("map1.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 1000px 1000px; */
+}
+
+
+.canvas_background img {
+    position: absolute;
+    left: 50%;
+    margin-left: -450px;
+    z-index: 0;
+} 
+
+
+#matter_area {
+    opacity: 0.9;
+    background: transparent !important;
+    position: absolute;
+    z-index: 1;
+}
+
+.park {
+  position: absolute;
+  /* background: #111; */
+  /* color: #eee; */
+  /* height: 80px; */
+  /* width: 140px; */
+  /* clip-path: circle(50px); */
+
+  height: 100px;
+  width: 100px;
+  background-color: #111;
+  border-radius: 50%;
+
+  cursor: move;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Amatic SC";
+  text-wrap: nowrap;
+  z-index: 0;
+  /* text-shadow: 2px 2px 3px #38e; */
+}
+
+
+.tooltiptext {
+  /* font-size: 11vw; */
+  position: absolute;
+  top: -2em;
+  visibility: hidden;
+  z-index: 2;
+}
+
+.park:hover .tooltiptext {
+  visibility: visible;
+}
