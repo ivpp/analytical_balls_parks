@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', async function() {
   let w = window.innerWidth;
   let h = window.innerHeight;
 
+
+  park_data.forEach((p) => delete p.color)
+
   chart = Highcharts.mapChart('map_highcharts', {
 
       title: {
@@ -79,7 +82,8 @@ document.addEventListener('DOMContentLoaded', async function() {
               data: Highcharts.geojson(districts),
               name: 'Районы',
               color: "#f5f5f5",
-              opacity: 0.9,
+              // color: "#858882B3",
+              opacity: 0.95,
               borderWidth: 0.25,
               tooltip: {
                   pointFormat:  "{point.properties.okrug}"
@@ -89,6 +93,7 @@ document.addEventListener('DOMContentLoaded', async function() {
               type: 'map',
               data: park_data,
               mapData: Highcharts.geojson(parks_geojson),
+              color: "#135623",
               name: 'Парки',
               borderWidth: 0,
               states: {
@@ -102,24 +107,19 @@ document.addEventListener('DOMContentLoaded', async function() {
               point: {
                 events: {
                   mouseOver: function() {
-                    park = engine.world.bodies.find((b) => b.label == this["hc-key"])
-                    if (park !== undefined) {
-                      // engine.world.bodies.find((b) => b.label == this["hc-key"]).render.fillStyle  = "#a4edba"
-                      engine.world.bodies.find((b) => b.label == this["hc-key"]).render.fillStyle  = "#FF0000"
-                    }
+                    document.querySelectorAll(".park").forEach((p) => {
+                      if (p.id == this["hc-key"]) {
+                        p.style.backgroundColor = '#FF0000'
+                      }
+                    })
                   },
                   mouseOut: function() {
-                    park = engine.world.bodies.find((b) => b.label == this["hc-key"])
-
-                    console.log(this["hc-key"])
-                    
-                    console.log(park_data.find((p) => p["hc-key"] == this["hc-key"]).color)
-
-                    console.log(park)
-                    if (park !== undefined) {
-                      park.render.fillStyle = park_data.find((p) => p["hc-key"] == this["hc-key"]).color
+                    document.querySelectorAll(".park").forEach((p) => {
+                      if (p.id == this["hc-key"]) {
+                        p.style.backgroundColor = "#498334"
                       }
-                  }
+                    })
+                  },
                 }
               },
               // colorKey: 'color',
@@ -133,6 +133,7 @@ document.addEventListener('DOMContentLoaded', async function() {
               // mapData: Highcharts.geojson(parks_centroids),
               name: 'parks_centroid',
               visible: false,
+              showInLegend: false,
               // color: "#FF0000",
               // lineWidth: 0.75,
               // opacity: 0.7,
@@ -174,6 +175,8 @@ document.addEventListener('DOMContentLoaded', async function() {
   chart.series[2].points.forEach((p) => {
     centroids_position.push({x: p.plotX, })
   })
+
+  document.getElementById('map_highcharts').style.zIndex = "4";
 
   let clickCounter = 0
 
@@ -514,6 +517,8 @@ document.addEventListener('DOMContentLoaded', async function() {
       // const path = getPath({x:400,y:400}, 0, 50, 0, 5*360, 30);
       // const path2 = getPath({x:400,y:400}, 0, 60, 0, 3*270, 30);
 
+      document.getElementById('map_highcharts').style.zIndex = "1";
+
       m_pix = (
         chart.series[2].points[1].y
         - chart.series[2].points[0].y
@@ -551,7 +556,8 @@ document.addEventListener('DOMContentLoaded', async function() {
               //   yScale: 0.5,
               //   xScale: 0.5, 
               // },
-              fillStyle: park_data[i].color,
+              // fillStyle: park_data[i].color,
+              fillStyle: "#29522a",
               strokeStyle: "#FF0000",
               lineWidth: 5,
             }
@@ -567,7 +573,9 @@ document.addEventListener('DOMContentLoaded', async function() {
               this.elem.style.left = `${x - this.body.circleRadius}px`;
               this.elem.style.width = `${this.body.circleRadius * 2}px`;
               this.elem.style.height = `${this.body.circleRadius * 2}px`;
-              this.elem.style.backgroundColor = this.body.render.fillStyle;
+              // this.elem.style.transition = "background-color 1s"
+              // this.elem.style.backgroundColor = "#498334"
+              // this.elem.style.backgroundColor = this.body.render.fillStyle;
               // this.elem.style.borderRadius = "50%"
               // this.elem.style.borderStyle = "solid"
               // this.elem.style.borderWidth = this.body.render.lineWidth;
@@ -710,7 +718,20 @@ document.addEventListener('DOMContentLoaded', async function() {
       20
     );
 
+    
+    i = 0
+    colors = ["#e8e5f9", "#afa9f3", "#8d82d3"]
+    document.querySelectorAll(".park").forEach((p) => {
+      // color = park_data.find((park) => park["hc-key"] == p.id).color
+      p.style.backgroundColor = colors[i]
+      i++
+      if ( i == 3) {
+        i = 0
+      }
+      // p.classList.add('trade')
+    })
 
+   
     engine.world.bodies.forEach((b) => {
         if ((b.label != 'Rectangle Body') & (b.label != 'iceCream')) {
           Body.setMass(b, 0.01 * (b.area))
@@ -733,6 +754,14 @@ document.addEventListener('DOMContentLoaded', async function() {
           i = i - 1
         }
       }
+
+
+
+      document.querySelectorAll(".park").forEach((p) => {
+        // color = park_data.find((park) => park["hc-key"] == p.id).color
+        p.style.backgroundColor = "#135623"
+        // p.classList.add('trade')
+      })
 
       animateByMargin(
         document.getElementById('iceCream'),
@@ -855,11 +884,17 @@ document.addEventListener('DOMContentLoaded', async function() {
             s.style.visibility = "hidden"
         });
 
-      await sleep(200);
-      engine.world.bodies.forEach((b) => b.render.fillStyle ="#272757")
+      // await sleep(200);sss
+      // engine.world.bodies.forEach((b) => b.render.fillStyle ="#272757")
+      document.querySelectorAll(".park").forEach((p) => {
+        // color = park_data.find((park) => park["hc-key"] == p.id).color
+        p.style.backgroundColor = "#272757"
+        p.style.boxShadow = "inset 0px 0px 50px gold"
+        // p.classList.add('trade')
+      })
       
-      await sleep(200);
-      document.querySelectorAll('.park').forEach((p) => p.style.boxShadow = "inset 0px 0px 50px gold")
+      // await sleep(200);
+      // document.querySelectorAll('.park').forEach((p) => p.style.boxShadow = "inset 0px 0px 50px gold")
 
       clickCounter++;
 
