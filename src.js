@@ -245,12 +245,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 
 
-      let div = document.createElement('div');
+      let div = document.createElement('img');
       // div.innerHTML = '<h1 class="tooltiptext">' + data[i].name + "</h1>";
       // div.innerHTML = '<h1 class="tooltiptext">' + i + "</h1>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800"><path class="spiral" d="" fill="none" stroke="#fdeecd" stroke-width="15"/><path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
       div.setAttribute('class', 'iceCream'); // and make sure myclass has some styles in css
       div.setAttribute('id', "iceCream"); // and make sure myclass has some styles in css
-      div.setAttribute('style', "top: 0px; left:0 px; z-index: 4")
+      div.setAttribute('style', "top: 0px; left:0 px; z-index: 2")
+      div.setAttribute("src", "icaCream.png")
       
       document.body.appendChild(div);
 
@@ -261,8 +262,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         h ,
         vertexSets = [[
           { x: 0, y: 0 },
-          { x: 20, y: 35 },
-          { x: 480, y: 35 },
+          { x: 250, y: 150},
+          // { x: 250, y: 35 },
           { x: 500, y: 0 },
           { x: 250, y: 500 },
           // { x: w / 2 - 260, y: 1000},
@@ -296,7 +297,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         elem: document.getElementById("iceCream"),
         render() {
           const {x, y} = this.body.position;
-          this.elem.style.top = `${y-175}px`;
+          // this.elem.style.top = `${y-175}px`;
+          this.elem.style.top = `${y-310}px`;
           this.elem.style.left = `${x-250}px`;
           // this.elem.style.width = `${this.body.circleRadius * 2}px`;
           // this.elem.style.height = `${this.body.circleRadius * 2}px`;

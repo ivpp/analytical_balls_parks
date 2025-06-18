@@ -128,13 +128,13 @@ h1 {
   position: absolute;
   width: 500px;
   height: 500px;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  /* clip-path: polygon(0 0, 100% 0, 50% 100%); */
   /* border-left: 250px solid transparent;
   border-right: 250px solid transparent;
   border-top: 500px solid green; */
-  background-image: url("waffel.jpg");
-  background-position: center;
-  background-size: 700px;
+  /* background-image: url("waffel.jpg"); */
+  /* background-position: center; */
+  /* background-size: 700px; */
   margin: 0;
   margin-top: 500px;
   z-index: 4;
