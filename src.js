@@ -8,8 +8,12 @@
   Revised by: tommyho510@gmail.com   
 */
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-document.addEventListener('DOMContentLoaded', function() { 
+document.addEventListener('DOMContentLoaded', async function() { 
+
   /* --- System Parameters (Recommended)--- */
   let pBounce = 0.75;  // Define Bounciness (0.8)
   let pFriction = 0.01; // Define air friction (0.01)
@@ -19,6 +23,157 @@ document.addEventListener('DOMContentLoaded', function() {
   let w = window.innerWidth;
   let h = window.innerHeight;
 
+  chart = Highcharts.mapChart('map_highcharts', {
+
+      title: {
+        text: undefined
+      },
+
+      chart: {
+          // map: 'msc_new',
+          backgroundColor: null,
+      },
+
+      exporting: {
+        enabled: false,
+      },
+      // mapNavigation: {
+      //     enabled: true,
+      // },
+      // mapView: {
+      //   fitToGeometry: {
+      //     type: 'Polygon',
+      //     coordinates: [
+      //       [4144000, 7461000 + 500000],
+      //       [4144000 + 90000, 7461000 + 500000],
+      //       [4144000 + 90000, 7461000],
+      //       [4144000, 7461000],
+      //       [4144000, 7461000 + 500000]
+      //     ]
+      //   }
+      // },
+
+      plotOptions: {
+        series: {
+            states: {
+              // hover: {
+              //   enabled: false,
+              // },
+              inactive: {
+                enabled: false,
+              },
+              select: {
+                enabled: false,
+              },
+            },
+            tooltip: {
+              pointFormat:  "{point.name}"
+            }
+        }
+      },
+
+      series: [
+          {
+              // allAreas: true,
+              type: 'map',
+              data: Highcharts.geojson(districts),
+              name: 'Районы',
+              color: "#f5f5f5",
+              opacity: 0.9,
+              borderWidth: 0.25,
+              tooltip: {
+                  pointFormat:  "{point.properties.okrug}"
+                }
+          },
+          {
+              type: 'map',
+              data: park_data,
+              mapData: Highcharts.geojson(parks_geojson),
+              name: 'Парки',
+              borderWidth: 0,
+              states: {
+                hover: {
+                    // color: '#a4edba',
+                    color: '#FF0000',
+                    borderColor: 'gray'
+                },
+              },
+
+              point: {
+                events: {
+                  mouseOver: function() {
+                    park = engine.world.bodies.find((b) => b.label == this["hc-key"])
+                    if (park !== undefined) {
+                      // engine.world.bodies.find((b) => b.label == this["hc-key"]).render.fillStyle  = "#a4edba"
+                      engine.world.bodies.find((b) => b.label == this["hc-key"]).render.fillStyle  = "#FF0000"
+                    }
+                  },
+                  mouseOut: function() {
+                    park = engine.world.bodies.find((b) => b.label == this["hc-key"])
+
+                    console.log(this["hc-key"])
+                    
+                    console.log(park_data.find((p) => p["hc-key"] == this["hc-key"]).color)
+
+                    console.log(park)
+                    if (park !== undefined) {
+                      park.render.fillStyle = park_data.find((p) => p["hc-key"] == this["hc-key"]).color
+                      }
+                  }
+                }
+              },
+              // colorKey: 'color',
+              // color: Highcharts.getOptions().colors[0],
+              // color: Highcharts.maps["msc_new"].filter(x => x.name == "parks")[0].color,
+              // opacity: 0.7,
+          },
+          {
+              type: 'mappoint',
+              data: parks_centroids,
+              // mapData: Highcharts.geojson(parks_centroids),
+              name: 'parks_centroid',
+              visible: false,
+              // color: "#FF0000",
+              // lineWidth: 0.75,
+              // opacity: 0.7,
+          },
+          // {
+          //   type: 'mapline',
+          //   data: Highcharts.geojson(Highcharts.maps["msc_new"].filter(x => x.name == "rivers")[0], 'mapline'),
+          //   name: 'river',
+          //   color: Highcharts.maps["msc_new"].filter(x => x.name == "rivers")[0].color
+          // },
+          // {
+          //     type: 'mapline',
+          //     data: Highcharts.geojson(Highcharts.maps["msc_new"].filter(x => x.name == "roads")[0], 'mapline'),
+          //     name: 'roads',
+          //     color: Highcharts.maps["msc_new"].filter(x => x.name == "roads")[0].color,
+          //     lineWidth: 1,
+          // },
+      ],
+
+      // xAxis: {
+      //   min: 4144000,
+      //   max: 4144000 + 90000,
+      //           startOnTick: false,
+      //   endOnTick: false
+      // },
+
+
+      // yAxis: {
+      //   min: 7461000,
+      //   max: 7461000 + 90000
+      // },
+
+
+  });
+
+   
+  console.log(chart)
+  centroids_position = []
+  chart.series[2].points.forEach((p) => {
+    centroids_position.push({x: p.plotX, })
+  })
 
   let clickCounter = 0
 
@@ -76,8 +231,9 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   // Create a static body to bounce off
-  // const staticObj = Bodies.polygon(w / 2, h / 2, 6, Math.min(w / 6, h / 6), {
+  // const iceCream = Bodies.polygon(w / 2, h / 2, 3, Math.min(w / 6, h / 6), {
   //   isStatic: true,
+  //   label: 'Rectangle Body',
   //   render: {
   //     lineWidth: 5,
   //     strokeStyle: 'yellow',
@@ -85,6 +241,96 @@ document.addEventListener('DOMContentLoaded', function() {
   //     visible: true
   //   }
   // });
+
+
+
+
+      let div = document.createElement('div');
+      // div.innerHTML = '<h1 class="tooltiptext">' + data[i].name + "</h1>";
+      // div.innerHTML = '<h1 class="tooltiptext">' + i + "</h1>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800"><path class="spiral" d="" fill="none" stroke="#fdeecd" stroke-width="15"/><path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
+      div.setAttribute('class', 'iceCream'); // and make sure myclass has some styles in css
+      div.setAttribute('id', "iceCream"); // and make sure myclass has some styles in css
+      div.setAttribute('style', "top: 0px; left:0 px; z-index: 4")
+      
+      document.body.appendChild(div);
+
+      console.log(w, h)
+
+      const iceCreammtjs = Matter.Bodies.fromVertices(
+        w / 2,
+        h ,
+        vertexSets = [[
+          { x: 0, y: 0 },
+          { x: 20, y: 35 },
+          { x: 480, y: 35 },
+          { x: 500, y: 0 },
+          { x: 250, y: 500 },
+          // { x: w / 2 - 260, y: 1000},
+          // { x: w / 2 + 260, y: 1000},
+          // { x: w / 2, y: 1500}
+        ]],
+          {
+          frictionAir: pFriction,
+          restitution: -0.5,
+          friction: 0.1,
+          frictionStatic: 0.1,
+          slop: 0,
+          isStatic: true,
+          label: 'iceCream',
+          render: {
+            // sprite: {
+            //   texture: './waffel.jpg',
+            //   yScale: 0.5,
+            //   xScale: 0.5, 
+            // },
+            // fillStyle: park_data[i].color,
+            // strokeStyle: "#FF0000",
+            // lineWidth: 5,
+        }
+      })
+      iceCreammtjs.label = 'iceCream'
+
+
+      let iceCream = {
+        body: iceCreammtjs,
+        elem: document.getElementById("iceCream"),
+        render() {
+          const {x, y} = this.body.position;
+          this.elem.style.top = `${y-175}px`;
+          this.elem.style.left = `${x-250}px`;
+          // this.elem.style.width = `${this.body.circleRadius * 2}px`;
+          // this.elem.style.height = `${this.body.circleRadius * 2}px`;
+          // this.elem.style.backgroundColor = this.body.render.fillStyle;
+          // this.elem.style.borderRadius = "50%"
+          // this.elem.style.borderStyle = "solid"
+          // this.elem.style.borderWidth = "3px"
+          // this.elem.style.borderColor = "#FF0000"
+          // this.elem.style.transform = `rotate(${this.body.angle}rad)`;
+        },
+      };
+
+      // console.log(circle_mtjs)
+
+      // Composite.add(engine.world, iceCreammtjs);
+
+
+  // document.querySelectorAll(".park").forEach((e) => {
+
+  //   eId = e.getAttribute('id')
+
+  //   console.log(eId)
+  //   e.addEventListener('mouseenter', () => {
+  //     e.style.backgroundColor = "#FFA500"
+  //     chart.series[2].data[eId].setState('hover')
+  //     chart.tooltip.refresh(chart.series[2].data[eId])
+  //   })
+  //   eleem.addEventListener('mouseleave', () => {
+  //     e.style.backgroundColor = ''
+  //     chart.series[2].data[eId].setState(undefined)
+  //     chart.tooltip.hide(chart.series[2].data[eId])
+  //   })
+  // })
+
 
   // Create a wall for the shapes to bounce off
   const wallOptions = {
@@ -121,9 +367,11 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 
-  coords = getOffset(document.getElementById("map"))
+  map_highcharts_position = getOffset(document.getElementById("map_highcharts"))
 
-  console.log(coords)
+  console.log(map_highcharts_position)
+
+  coords = {left: 500, top: 0}
 
   // const circle1 = Bodies.circle(coords.left + 500, 200, 37.5, {
   //     frictionAir: pFriction,
@@ -147,14 +395,19 @@ document.addEventListener('DOMContentLoaded', function() {
     leftWall,
     rightWall,
     mouseControl,
+    iceCreammtjs,
     // box.body,
 
     // intialShapes,
     // circle1
   ]);
 
-  
 
+  (function rerender() {
+    iceCream.render();
+    // Engine.update(engine);
+    requestAnimationFrame(rerender);
+  })()
 
   // (function rerender() {
   //   box.render();
@@ -219,112 +472,251 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // myLoop(coords.left + data[i].offset_x / 100, 900 - data[i].offset_y / 100, data[i].radius / 80);  
 
-  // ########### New function to create parks: 
 
-  const path = getPath({x:400,y:400}, 0, 50, 0, 5*360, 30);
-  const path2 = getPath({x:400,y:400}, 0, 60, 0, 3*270, 30);
-
-  var i = 0;
-
-  function myLoop(x, y, radius) {
-    setTimeout(function() {
+  // console.log(slides[0])
 
 
-      let div = document.createElement('div');
-      // div.innerHTML = '<h1 class="tooltiptext">' + data[i].name + "</h1>";
-      div.innerHTML = '<h1 class="tooltiptext">' + i + "</h1>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800"><path class="spiral" d="" fill="none" stroke="#fdeecd" stroke-width="15"/><path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
-      div.setAttribute('class', 'park'); // and make sure myclass has some styles in css
-      div.setAttribute('id', i); // and make sure myclass has some styles in css
-      div.setAttribute('style', "top: 0px; left:0 px; z-index: 0")
+
+  document.getElementById("slide").innerHTML = slides[0]
+
+
+
+
+  document.querySelector(".title").onclick = async function(e) {
+
+
+    // if (clickCounter == 0 & engine.world.bodies.length == 121) {
+    if (clickCounter == 0) {
+    // var i = 1
+    // map = document.getElementById("map_highcharts")
+    // function remove_map() { 
+    //   setTimeout(function() { 
+    //     // map.style.top =  - (i * 20) + "px";
+    //     map.style.left =  + (i * 20) + "px";
+    //     i++;  
+    //     if (i < 10) { 
+    //       remove_map()
+    //     } 
+    //   }, 0.01)
+
+    // }
+
+    // remove_map();
+
+
+      // document.getElementById("slide").innerHTML = slides[0]
       
-      document.body.appendChild(div);
 
-      const circle_mtjs = Bodies.circle(x, y, radius, {
-        frictionAir: pFriction,
-        restitution: pBounce,
-        friction: 0.7,
-        frictionStatic:  0.7,
-        slop: 0,
-        isStatic: true,
-        label: i,
-        render: {
-          // sprite: {
-          //   yScale: 0.5,
-          //   xScale: 0.5, 
-          // },
-          fillStyle: data[i].color,
-          strokeStyle: "#FF0000",
-          lineWidth: 5,
-        }
-      })
+      // ########### New function to create parks: 
+
+      // const path = getPath({x:400,y:400}, 0, 50, 0, 5*360, 30);
+      // const path2 = getPath({x:400,y:400}, 0, 60, 0, 3*270, 30);
+
+      m_pix = (
+        chart.series[2].points[1].y
+        - chart.series[2].points[0].y
+      ) / (
+        chart.series[2].points[0].plotY
+        - chart.series[2].points[1].plotY
+      ) / 2
+
+      var i = 0;
+
+      function myLoop(x, y, radius) {
+        setTimeout(function() {
+
+          // console.log(park_data[i]["hc-key"])
+
+          let div = document.createElement('div');
+          // div.innerHTML = '<h1 class="tooltiptext">' + data[i].name + "</h1>";
+          div.innerHTML = '<h1 class="tooltiptext">' + park_data[i]["name"] + "</h1>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800"><path class="spiral" d="" fill="none" stroke="#fdeecd" stroke-width="15"/><path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
+          div.setAttribute('class', 'park'); // and make sure myclass has some styles in css
+          div.setAttribute('id', park_data[i]["hc-key"]); // and make sure myclass has some styles in css
+          div.setAttribute('style', "top: 0px; left:0 px; z-index: 2")
+          
+          document.body.appendChild(div);
+
+          const circle_mtjs = Bodies.circle(x, y, radius, {
+            frictionAir: pFriction,
+            restitution: pBounce,
+            friction: 0.7,
+            frictionStatic:  0.7,
+            slop: 0,
+            isStatic: true,
+            label: park_data[i]["hc-key"],
+            render: {
+              // sprite: {
+              //   yScale: 0.5,
+              //   xScale: 0.5, 
+              // },
+              fillStyle: park_data[i].color,
+              strokeStyle: "#FF0000",
+              lineWidth: 5,
+            }
+          })
 
 
-      let circle = {
-        body: circle_mtjs,
-        elem: document.getElementById(i),
-        render() {
-          const {x, y} = this.body.position;
-          this.elem.style.top = `${y - this.body.circleRadius}px`;
-          this.elem.style.left = `${x - this.body.circleRadius}px`;
-          this.elem.style.width = `${this.body.circleRadius * 2}px`;
-          this.elem.style.height = `${this.body.circleRadius * 2}px`;
-          this.elem.style.backgroundColor = this.body.render.fillStyle;
-          this.elem.style.borderRadius = `50%`
-          this.elem.style.transform = `rotate(${this.body.angle}rad)`;
-        },
-      };
+          let circle = {
+            body: circle_mtjs,
+            elem: document.getElementById(park_data[i]["hc-key"]),
+            render() {
+              const {x, y} = this.body.position;
+              this.elem.style.top = `${y - this.body.circleRadius}px`;
+              this.elem.style.left = `${x - this.body.circleRadius}px`;
+              this.elem.style.width = `${this.body.circleRadius * 2}px`;
+              this.elem.style.height = `${this.body.circleRadius * 2}px`;
+              this.elem.style.backgroundColor = this.body.render.fillStyle;
+              // this.elem.style.borderRadius = "50%"
+              // this.elem.style.borderStyle = "solid"
+              // this.elem.style.borderWidth = this.body.render.lineWidth;
+              // this.elem.style.borderColor = this.body.render.strokeStyle;
+              // this.elem.style.transform = `rotate(${this.body.angle}rad)`;
+            },
+          };
 
-      // console.log(circle_mtjs)
+          // console.log(circle_mtjs)
 
-      Composite.add(engine.world, circle_mtjs);
+          Composite.add(engine.world, circle_mtjs);
 
-      (function rerender() {
-        circle.render();
-        // Engine.update(engine);
-        requestAnimationFrame(rerender);
-      })()
+          (function rerender() {
+            circle.render();
+            // Engine.update(engine);
+            requestAnimationFrame(rerender);
+          })()
 
-      i++;
-      if (i < 117) {
-        myLoop(coords.left + data[i].offset_x / 100, 900 - data[i].offset_y / 100, data[i].radius / 80);
+          // chart.series[1].data[i].update({
+          //     opacity: 0.2
+          // })
+
+          i++;
+          if (i < 117) {
+            myLoop(
+              chart.series[2].points[i].plotX + map_highcharts_position.left + 10,
+              chart.series[2].points[i].plotY + map_highcharts_position.top + 10,
+              park_data[i].radius / m_pix
+            );
+          }
+        }, 1)
       }
-    }, 10)
-  }
+
+      myLoop(
+        chart.series[2].points[i].plotX + map_highcharts_position.left + 10,
+        chart.series[2].points[i].plotY + map_highcharts_position.top + 10,
+        park_data[i].radius / m_pix
+      );
+
+  // console.log(engine.world)
 
 
-  myLoop(coords.left + data[i].offset_x / 100, 900 - data[i].offset_y / 100, data[i].radius / 80);
-
-  console.log(engine.world)
+    await sleep(2000);
 
 
-  document.getElementById("matter_area").onclick=function(e) {
-
-
-    if (clickCounter == 0 & engine.world.bodies.length == 121) {
-    // if (clickCounter == 0) {
-    var i = 1
-    map = document.getElementById("map")
-    function remove_map() { 
-      setTimeout(function() { 
-        map.style.top =  - (i * 20) + "px";
-        i++;  
-        if (i < 100) { 
-          remove_map()
-        } 
-      }, 0.01)
-
+    function animateLeft(obj, from, to){
+      if(from >= to){         
+          // obj.style.visibility = 'hidden';
+          return;  
+      }
+      else {
+          var box = obj;
+          box.style.marginLeft = from + "px";
+          setTimeout(function(){
+              animateLeft(obj, from + 20, to);
+          }, 0.1) 
+      }
     }
 
-    remove_map();
+    animateLeft(
+      document.getElementById('map_highcharts'),
+      0,
+      map_highcharts_position.left
+    );
+    
+  
 
-    // map.style.display = 'none'
+
+    // function animateTop(obj, from, to){
+    //   if(from < to){         
+    //       // obj.style.visibility = 'hidden';
+    //       return;  
+    //   }
+    //   else {
+    //       var box = obj;
+    //       box.style.marginTop = from + "px";
+
+    //       console.log(box.style.marginTop)
+    //       setTimeout(function(){
+    //           animateTop(obj, from - 20, to);
+    //       }, 0.1) 
+    //   }
+    // }
+
+    // console.log(iceCreammtjs.position)
+
+    // animateTop(
+    //   document.getElementById('iceCream'),
+    //   500,
+    //   0
+    // );
+
+    
+
+    // function animateByMargin(obj, direction, from, to, step){
+    //   if((from - step) == to){         
+    //       return;  
+    //   }
+    //   else {
+
+    //     var box = obj;
+
+    //     if (direction == "verically") {
+    //        box.style.marginTop = from + "px";
+    //     } else {
+    //        box.style.marginLeft = from + "px";
+    //     }
+      
+    //     setTimeout(function(){
+    //         animateByMargin(obj, direction, from + step, to, step);
+    //     }, 0.1) 
+
+    //   }
+    // }
+
+    animateByMargin(
+      document.getElementById('iceCream'),
+      "verically",
+      500,
+      0,
+      -20
+    );
+
+
+    document.getElementById("slide_next").innerHTML = slides[1]
+
+    animateByMargin(
+      document.getElementById('slide'),
+      "verically",
+      0,
+      1000,
+      20
+    );
+
+    animateByMargin(
+      document.getElementById('slide_next'),
+      "verically",
+      0,
+      800,
+      20
+    );
+
 
     engine.world.bodies.forEach((b) => {
-        if (b.label != 'Rectangle Body') {
+        if ((b.label != 'Rectangle Body') & (b.label != 'iceCream')) {
           Body.setMass(b, 0.01 * (b.area))
           Body.setStatic(b, false)
         }
     });
+
+    document.getElementById('map_highcharts').style.zIndex = "4";
 
     clickCounter++;
 
@@ -333,51 +725,142 @@ document.addEventListener('DOMContentLoaded', function() {
       for (i = 0; i < engine.world.bodies.length; i++) {
           
         b = engine.world.bodies[i]
-        if (b.area < 500 & b.label != 'Rectangle Body') {
+        if (data[i].area < 250 & b.label != 'Rectangle Body') {
           Composite.remove(engine.world, b)
           document.getElementById(b.label).remove();
           i = i - 1
         }
       }
 
-      clickCounter++;
+      animateByMargin(
+        document.getElementById('iceCream'),
+        "verically",
+        0,
+        500,
+        20
+      );
 
-    } else if (clickCounter == 2) {
-      i = 0
-      function scale_parks() { 
-        setTimeout(function() { 
-          engine.world.bodies.forEach((b) => {
+      console.log(engine.world.bodies.find((b) => b.label == "iceCream"))
 
-              if (b.label != 'Rectangle Body') {
-                Body.scale(b, 1.1, 1.1)
-              }
-          });
-          i++;  
-          if (i < 15) { 
-            scale_parks()
-          } 
-        }, 0.1)
+      Composite.remove(engine.world, engine.world.bodies.find((b) => b.label == "iceCream"))
 
+      document.getElementById('slide_next').setAttribute("id", "slide_")
+      document.getElementById('slide').setAttribute("id", "slide_next")
+      document.getElementById('slide_').setAttribute("id", "slide")
+
+      document.getElementById("slide_next").innerHTML = slides[2]
+
+      animateByMargin(
+        document.getElementById('slide'),
+        "verically",
+        0,
+        1000,
+        20
+      );
+
+      animateByMargin(
+        document.getElementById('slide_next'),
+        "verically",
+        0,
+        800,
+        20
+      );
+
+
+    //   clickCounter++;
+
+    // } else if (clickCounter == 2) {
+
+      await sleep(500);
+
+      function scaleParks() {
+        i = 0
+        function scale_parks() { 
+          setTimeout(function() { 
+            engine.world.bodies.forEach((b) => {
+
+                if (b.label != 'Rectangle Body') {
+                  Body.scale(b, 1.1, 1.1)
+                }
+            });
+            i++;  
+            if (i < 15) { 
+              scale_parks()
+            } 
+          }, 0.1)
+
+        }
+        scale_parks();
       }
 
-      scale_parks();
+      scaleParks()
+    //   clickCounter++;
+  
+    // } else if (clickCounter == 3) {
 
+      await sleep(500);
+
+      function drawSpirals () {
+
+        const path = getPath({x:400,y:400}, 0, 50, 0, 5*360, 30);
+        const path2 = getPath({x:400,y:400}, 0, 60, 0, 3*270, 30);
+
+        document.querySelectorAll(".spiral").forEach((s) => {
+            s.style.zIndex = "1";
+            s.setAttribute("d", path);
+        });
+        document.querySelectorAll(".spiral2").forEach((s) => {
+            s.style.zIndex = "2";
+            s.setAttribute("d", path2);
+        });
+      }
+
+      drawSpirals()
       clickCounter++;
   
-    } else if (clickCounter == 3) {
 
-      document.querySelectorAll(".spiral").forEach((s) => {
-          s.style.zIndex = "1";
-          s.setAttribute("d", path);
-      });
+    } else if (clickCounter == 2) {
 
-      document.querySelectorAll(".spiral2").forEach((s) => {
-          s.style.zIndex = "2";
-          s.setAttribute("d", path2);
-      });
+
+      document.getElementById('slide_next').setAttribute("id", "slide_")
+      document.getElementById('slide').setAttribute("id", "slide_next")
+      document.getElementById('slide_').setAttribute("id", "slide")
+
+      document.getElementById("slide_next").innerHTML = slides[3]
+
+      animateByMargin(
+        document.getElementById('slide'),
+        "verically",
+        0,
+        1000,
+        20
+      );
+
+      animateByMargin(
+        document.getElementById('slide_next'),
+        "verically",
+        0,
+        800,
+        20
+      );
+
+        await sleep(200);
+
+        document.querySelectorAll(".spiral").forEach((s) => {
+             s.style.visibility = "hidden"
+        });
+        document.querySelectorAll(".spiral2").forEach((s) => {
+            s.style.visibility = "hidden"
+        });
+
+      await sleep(200);
+      engine.world.bodies.forEach((b) => b.render.fillStyle ="#272757")
+      
+      await sleep(200);
+      document.querySelectorAll('.park').forEach((p) => p.style.boxShadow = "inset 0px 0px 50px gold")
 
       clickCounter++;
-  
+
     }
 
   };
@@ -444,26 +927,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const hoveredShapes = Query.point(engine.world.bodies, vector);
     
-    hoveredShapes.forEach(shape => {
-
-      label = shape.label
-
-      if (label != 'Rectangle Body') {
-        bubble = document.getElementById(label)
-        bubble.children[0].style.visibility = "visible"
-      }
-
-    });
-
-    if (hoveredShapes.length == 0) {
-
-      // document.getElementById(label).forEach()
-      // bubble.children[0].style.visibility = "hidden"
-
+    if (hoveredShapes.length > 0) {
 
       document.querySelectorAll(".park").forEach((b) => {
           b.children[0].style.visibility = "hidden"
       });
+
+      label = hoveredShapes[0].label
+
+      if ((label != 'Rectangle Body') & (label != 'iceCream')) {
+        bubble = document.getElementById(label)
+        bubble.children[0].style.visibility = "visible"
+
+        chart.series[1].data.find((d) => d["hc-key"] == label).setState('hover')
+        chart.tooltip.refresh(chart.series[1].data.find((d) => d["hc-key"] == label))
+
+      }
+
+    };
+
+    if (hoveredShapes.length == 0) {
+
+      document.querySelectorAll(".park").forEach((b) => {
+          b.children[0].style.visibility = "hidden"
+      });
+
+      chart.series[1].data.forEach((d) => {
+        d.setState(undefined)
+      })
+
+      chart.tooltip.hide()
 
     }
 
@@ -473,10 +966,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // });
 
   });
-
-
-
-
 
 
   Matter.Runner.run(engine);
@@ -508,6 +997,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+
+// https://stackoverflow.com/questions/49091970/how-to-make-a-spiral-in-svg
  function lineIntersection (m1, b1, m2, b2) {
       if (m1 === m2) {
           throw new Error("parallel slopes");
@@ -519,6 +1010,9 @@ document.addEventListener('DOMContentLoaded', function() {
   function pStr (point) {
     return `${point.x},${point.y} `;
   }
+
+  // const path = getPath({x:400,y:400}, 0, 50, 0, 5*360, 30);
+  // const path2 = getPath({x:400,y:400}, 0, 60, 0, 3*270, 30);
 
   function getPath (center, startRadius, spacePerLoop, startTheta, endTheta, thetaStep) {
       // Rename spiral parameters for the formula r = a + bθ
@@ -582,3 +1076,27 @@ document.addEventListener('DOMContentLoaded', function() {
       
       return path;
   }
+
+
+
+
+function animateByMargin(obj, direction, from, to, step){
+  if((from - step) == to){         
+      return;  
+  }
+  else {
+
+    var box = obj;
+
+    if (direction == "verically") {
+        box.style.marginTop = from + "px";
+    } else {
+        box.style.marginLeft = from + "px";
+    }
+
+    setTimeout(function(){
+        animateByMargin(obj, direction, from + step, to, step);
+    }, 0.1) 
+
+  }
+}

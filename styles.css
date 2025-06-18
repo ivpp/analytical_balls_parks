@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@400;700&display=swap');
 
 * {
   box-sizing: border-box;
@@ -8,7 +9,9 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-family: 'Open Sans', sans-serif;
+  /* font-family: 'Open Sans', sans-serif; */
+  font-family: "PT Sans Narrow", sans-serif;
+  /* font-size: large; */
   color: #fff;
   /* background: #222; */
   /* width: 800px;
@@ -26,20 +29,74 @@ body {
     background-size: 1000px 1000px; */
 }
 
+h1 {
+    position: absolute;
+    z-index: 1;
+    padding: 0.5em;
+    margin: 0;
+    font-size: 5em;
+}
 
-.canvas_background img {
+#slide{
+    position: absolute;
+    z-index: 4;
+    padding: 0.5em;
+    margin: 0;
+    top: 200px;
+    left: 2%;
+    width: 20%;
+    /* height: 50%; */
+    font-size: 1.2em;
+    background-color: #858882B3;
+    border-radius: 1%;
+    display: flex;
+    flex-direction: column;
+    /* opacity: 0.3; */
+}
+
+
+#slide_next {
+    position: absolute;
+    z-index: 4;
+    padding: 0.5em;
+    margin-top: 0;
+    top: -600px;
+    left: 2%;
+    width: 20%;
+    /* height: 50%; */
+    font-size: 1.2em;
+    background-color: #85888280;
+    border-radius: 1%;
+    display: flex;
+    flex-direction: column;
+    /* opacity: 0.3; */
+}
+
+
+
+/* .canvas_background img {
     position: absolute;
     left: 50%;
     margin-left: -450px;
     z-index: 0;
-} 
+} */
+
+#map_highcharts {
+    position: absolute;
+    left: 35%;
+    width: 30%;
+    height: 75%;
+    /* margin-left: -450px; */
+    z-index: 1;
+}
+
 
 
 #matter_area {
     opacity: 0.9;
     background: transparent !important;
     position: absolute;
-    z-index: 1;
+    z-index: 3;
 }
 
 .park {
@@ -54,25 +111,80 @@ body {
   width: 100px;
   background-color: #111;
   border-radius: 50%;
-
+  box-shadow: 0px 0px 5px #457835;
   cursor: move;
   user-select: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Amatic SC";
+  font-family: "PT Sans Narrow", sans-serif;
   text-wrap: nowrap;
-  z-index: 0;
+  z-index: 2;
   /* text-shadow: 2px 2px 3px #38e; */
 }
+
+
+.iceCream {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  /* border-left: 250px solid transparent;
+  border-right: 250px solid transparent;
+  border-top: 500px solid green; */
+  background-image: url("waffel.jpg");
+  background-position: center;
+  background-size: 700px;
+  margin: 0;
+  margin-top: 500px;
+  z-index: 4;
+}
+
+/* 
+.iceCream {
+    height:250px;
+    width:250px;
+    position:absolute;
+    overflow:hidden;
+}
+.iceCream:after {
+    height:100%;
+    width:100%;
+    position:absolute;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    transform: rotate(45deg);
+    content:'';
+    display:block;
+    position:absolute;
+    left:-75%;
+    background-color: #111;
+    background-image: url("waffel.jpg");
+    background-size:cover;
+    z-index: 15 ;
+} */
+
+.title {
+  position: absolute;
+  z-index: 5;
+}
+
+
+
+
+
 
 
 .tooltiptext {
   /* font-size: 11vw; */
   position: absolute;
-  top: -2em;
+  /* top: -2em; */
   visibility: hidden;
   z-index: 2;
+  font-size: 1em;
+  text-wrap: wrap;
+  max-width: 20em;
+
 }
 
 .park:hover .tooltiptext {
