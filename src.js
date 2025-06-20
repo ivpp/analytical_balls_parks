@@ -1,16 +1,11 @@
+// https://codepen.io/tommyho/full/PoxdWJY
+// https://thecodingtrain.com/tracks/the-nature-of-code-2/noc/6-physics-libraries/1-matterjs-introduction
 
-/* To apply this animation to your website, paste the following into your HTML code:
-<iframe src="https://codepen.io/tommyho/full/PoxdWJY" width=500 height=500></iframe>
-
-/*
-  Sources:
-  https://thecodingtrain.com/tracks/the-nature-of-code-2/noc/6-physics-libraries/1-matterjs-introduction
-  Revised by: tommyho510@gmail.com   
-*/
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
 
 document.addEventListener('DOMContentLoaded', async function() { 
 
@@ -19,10 +14,8 @@ document.addEventListener('DOMContentLoaded', async function() {
   let pFriction = 0.01; // Define air friction (0.01)
   // mouse click in mid-air to create more particles
 
-  /* --- Main Program: DO NOT EDIT BELOW --- */
-  let w = window.innerWidth;
-  let h = window.innerHeight;
-
+  let w  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+  let h = window.innerHeight|| document.documentElement.clientHeight || document.body.clientHeight;
 
   park_data.forEach((p) => delete p.color)
 
@@ -181,9 +174,8 @@ document.addEventListener('DOMContentLoaded', async function() {
   let clickCounter = 0
 
 
-  const { Engine, Render, Body, Bodies, World, Composite, MouseConstraint, Composites, Query } = Matter;
+  const { Engine, Render, Body, Bodies, World, Composite, MouseConstraint, Mouse, Composites, Query } = Matter;
 
-  // const { CircleType } = circletype;
 
   const sectionTag = document.getElementById("matter_area");
   const engine = Engine.create();
@@ -195,146 +187,82 @@ document.addEventListener('DOMContentLoaded', async function() {
       height: h,
       background:'transparent',
       wireframes: false,
-      pixelRatio: window.devicePixelRatio 
+      pixelRatio: window.devicePixelRatio
+      // pixelRatio: 1
     },
   });
 
 
-
+  let div = document.createElement('img');
+  // div.innerHTML = '<h1 class="tooltiptext">' + data[i].name + "</h1>";
+  // div.innerHTML = '<h1 class="tooltiptext">' + i + "</h1>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800"><path class="spiral" d="" fill="none" stroke="#fdeecd" stroke-width="15"/><path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
+  div.setAttribute('class', 'iceCream'); // and make sure myclass has some styles in css
+  div.setAttribute('id', "iceCream"); // and make sure myclass has some styles in css
+  div.setAttribute('style', "top: 0px; left:0 px; z-index: 2")
+  div.setAttribute("src", "icaCream.png")
   
-  const box = {
-    w: 100,
-    h: 100,
-    body: Bodies.circle(100, 100, 50, {label: "box"}),
-    elem: document.querySelector("#box"),
+  document.body.appendChild(div);
+
+  console.log(w, h)
+
+  const iceCreammtjs = Matter.Bodies.fromVertices(
+    w / 2,
+    h ,
+    vertexSets = [[
+      { x: 0, y: 0 },
+      { x: 250, y: 150},
+      // { x: 250, y: 35 },
+      { x: 500, y: 0 },
+      { x: 250, y: 500 },
+      // { x: w / 2 - 260, y: 1000},
+      // { x: w / 2 + 260, y: 1000},
+      // { x: w / 2, y: 1500}
+    ]],
+      {
+      frictionAir: pFriction,
+      restitution: -0.5,
+      friction: 0.1,
+      frictionStatic: 0.1,
+      slop: 0,
+      isStatic: true,
+      label: 'iceCream',
+      render: {
+        // sprite: {
+        //   texture: './waffel.jpg',
+        //   yScale: 0.5,
+        //   xScale: 0.5, 
+        // },
+        // fillStyle: park_data[i].color,
+        // strokeStyle: "#FF0000",
+        // lineWidth: 5,
+    }
+  })
+  iceCreammtjs.label = 'iceCream'
+
+
+  let iceCream = {
+    body: iceCreammtjs,
+    elem: document.getElementById("iceCream"),
     render() {
       const {x, y} = this.body.position;
-      this.elem.style.top = `${y - this.h / 2}px`;
-      this.elem.style.left = `${x - this.w / 2}px`;
+      // this.elem.style.top = `${y-175}px`;
+      this.elem.style.top = `${y-310}px`;
+      this.elem.style.left = `${x-250}px`;
+      // this.elem.style.width = `${this.body.circleRadius * 2}px`;
+      // this.elem.style.height = `${this.body.circleRadius * 2}px`;
+      // this.elem.style.backgroundColor = this.body.render.fillStyle;
+      // this.elem.style.borderRadius = "50%"
+      // this.elem.style.borderStyle = "solid"
+      // this.elem.style.borderWidth = "3px"
+      // this.elem.style.borderColor = "#FF0000"
       // this.elem.style.transform = `rotate(${this.body.angle}rad)`;
     },
   };
 
+  // console.log(circle_mtjs)
 
+  // Composite.add(engine.world, iceCreammtjs);
 
-  // Create a bubble
-  const createShape = function(x, y, radius) {
-    return Bodies.circle(x, y, radius, {
-      frictionAir: pFriction,
-      restitution: pBounce,
-      render: {
-        sprite: {
-          yScale: 0.5,
-          xScale: 0.5, 
-        },
-        fillStyle: 'blue',
-        strokeStyle: 'blue',
-      }
-    })
-  };
-
-  // Create a static body to bounce off
-  // const iceCream = Bodies.polygon(w / 2, h / 2, 3, Math.min(w / 6, h / 6), {
-  //   isStatic: true,
-  //   label: 'Rectangle Body',
-  //   render: {
-  //     lineWidth: 5,
-  //     strokeStyle: 'yellow',
-  //     fillStyle: "#448",
-  //     visible: true
-  //   }
-  // });
-
-
-
-
-      let div = document.createElement('img');
-      // div.innerHTML = '<h1 class="tooltiptext">' + data[i].name + "</h1>";
-      // div.innerHTML = '<h1 class="tooltiptext">' + i + "</h1>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800"><path class="spiral" d="" fill="none" stroke="#fdeecd" stroke-width="15"/><path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
-      div.setAttribute('class', 'iceCream'); // and make sure myclass has some styles in css
-      div.setAttribute('id', "iceCream"); // and make sure myclass has some styles in css
-      div.setAttribute('style', "top: 0px; left:0 px; z-index: 2")
-      div.setAttribute("src", "icaCream.png")
-      
-      document.body.appendChild(div);
-
-      console.log(w, h)
-
-      const iceCreammtjs = Matter.Bodies.fromVertices(
-        w / 2,
-        h ,
-        vertexSets = [[
-          { x: 0, y: 0 },
-          { x: 250, y: 150},
-          // { x: 250, y: 35 },
-          { x: 500, y: 0 },
-          { x: 250, y: 500 },
-          // { x: w / 2 - 260, y: 1000},
-          // { x: w / 2 + 260, y: 1000},
-          // { x: w / 2, y: 1500}
-        ]],
-          {
-          frictionAir: pFriction,
-          restitution: -0.5,
-          friction: 0.1,
-          frictionStatic: 0.1,
-          slop: 0,
-          isStatic: true,
-          label: 'iceCream',
-          render: {
-            // sprite: {
-            //   texture: './waffel.jpg',
-            //   yScale: 0.5,
-            //   xScale: 0.5, 
-            // },
-            // fillStyle: park_data[i].color,
-            // strokeStyle: "#FF0000",
-            // lineWidth: 5,
-        }
-      })
-      iceCreammtjs.label = 'iceCream'
-
-
-      let iceCream = {
-        body: iceCreammtjs,
-        elem: document.getElementById("iceCream"),
-        render() {
-          const {x, y} = this.body.position;
-          // this.elem.style.top = `${y-175}px`;
-          this.elem.style.top = `${y-310}px`;
-          this.elem.style.left = `${x-250}px`;
-          // this.elem.style.width = `${this.body.circleRadius * 2}px`;
-          // this.elem.style.height = `${this.body.circleRadius * 2}px`;
-          // this.elem.style.backgroundColor = this.body.render.fillStyle;
-          // this.elem.style.borderRadius = "50%"
-          // this.elem.style.borderStyle = "solid"
-          // this.elem.style.borderWidth = "3px"
-          // this.elem.style.borderColor = "#FF0000"
-          // this.elem.style.transform = `rotate(${this.body.angle}rad)`;
-        },
-      };
-
-      // console.log(circle_mtjs)
-
-      // Composite.add(engine.world, iceCreammtjs);
-
-
-  // document.querySelectorAll(".park").forEach((e) => {
-
-  //   eId = e.getAttribute('id')
-
-  //   console.log(eId)
-  //   e.addEventListener('mouseenter', () => {
-  //     e.style.backgroundColor = "#FFA500"
-  //     chart.series[2].data[eId].setState('hover')
-  //     chart.tooltip.refresh(chart.series[2].data[eId])
-  //   })
-  //   eleem.addEventListener('mouseleave', () => {
-  //     e.style.backgroundColor = ''
-  //     chart.series[2].data[eId].setState(undefined)
-  //     chart.tooltip.hide(chart.series[2].data[eId])
-  //   })
-  // })
 
 
   // Create a wall for the shapes to bounce off
@@ -354,10 +282,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     element: sectionTag,
     constraint: {
       render: {
-        visible: false
+        visible: true
       }
     }
   });
+
+  console.log(renderer)
+
+  let scale = 1 + (1 / (window.devicePixelRatio / (1 - window.devicePixelRatio)))
+
+  Mouse.setScale(mouseControl.mouse, {x: scale, y: scale})
 
   // // Create a stack of 15 x 5 bubbles
   // const intialShapes = Composites.stack(50, 50, 15, 1, 0, 0, function(x, y, radius){
@@ -373,10 +307,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   map_highcharts_position = getOffset(document.getElementById("map_highcharts"))
-
-  console.log(map_highcharts_position)
-
-  coords = {left: 500, top: 0}
 
   // const circle1 = Bodies.circle(coords.left + 500, 200, 37.5, {
   //     frictionAir: pFriction,
@@ -394,17 +324,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   // Start world engine
   Composite.add(engine.world, [
-    // staticObj, 
     ground,
     ceiling,
     leftWall,
     rightWall,
     mouseControl,
     iceCreammtjs,
-    // box.body,
 
-    // intialShapes,
-    // circle1
   ]);
 
 
@@ -603,16 +529,16 @@ document.addEventListener('DOMContentLoaded', async function() {
             myLoop(
               chart.series[2].points[i].plotX + map_highcharts_position.left + 10,
               chart.series[2].points[i].plotY + map_highcharts_position.top + 10,
-              park_data[i].radius / m_pix
+              park_data[i].radius / m_pix * scale
             );
           }
-        }, 1)
+        }, 10)
       }
 
       myLoop(
         chart.series[2].points[i].plotX + map_highcharts_position.left + 10,
         chart.series[2].points[i].plotY + map_highcharts_position.top + 10,
-        park_data[i].radius / m_pix
+        park_data[i].radius / m_pix * scale
       );
 
   // console.log(engine.world)
@@ -641,8 +567,13 @@ document.addEventListener('DOMContentLoaded', async function() {
       map_highcharts_position.left
     );
     
-  
-
+    animateByMargin(
+      document.getElementById('map_highcharts'),
+      "hirizontally",
+      0,
+      500,
+      20
+    );
 
     // function animateTop(obj, from, to){
     //   if(from < to){         
@@ -668,28 +599,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     //   0
     // );
 
-    
 
-    // function animateByMargin(obj, direction, from, to, step){
-    //   if((from - step) == to){         
-    //       return;  
-    //   }
-    //   else {
-
-    //     var box = obj;
-
-    //     if (direction == "verically") {
-    //        box.style.marginTop = from + "px";
-    //     } else {
-    //        box.style.marginLeft = from + "px";
-    //     }
-      
-    //     setTimeout(function(){
-    //         animateByMargin(obj, direction, from + step, to, step);
-    //     }, 0.1) 
-
-    //   }
-    // }
 
     animateByMargin(
       document.getElementById('iceCream'),
@@ -903,64 +813,10 @@ document.addEventListener('DOMContentLoaded', async function() {
   };
 
 
-
-
-
-
-
-
-  // Add a click listener -> add a bubble or drag a bubble
-  // document.addEventListener("click", function(event){
-  //   const shape = createShape(event.pageX, event.pageY);
-  //   intialShapes.bodies.push(shape);
-  //   World.add(engine.world, shape);
-  // });
-
-  // // Add a mousemove -> change bubble color or drag a bubble
-  // document.addEventListener("mousemove", function(event){
-  //   const vector = {x: event.pageX, y: event.pageY};
-  //   const hoveredShapes = Query.point(intialShapes.bodies, vector);
-    
-  //   // hoveredShapes.forEach(shape => {
-  //   //   shape.render.sprite = null
-  //   //   shape.render.fillStyle = "black"
-  //   //   shape.render.lineWidth = 5
-  //   // });
-    
-  // });
-
-
-
-  // // Add a mousemove -> change bubble color or drag a bubble
-  // document.addEventListener("mouseover", function(event){
-
-  //   const vector = {x: event.pageX, y: event.pageY};
-
-  //   // console.log(vector)
-
-  //   console.log(engine.world.bodies)
-    
-  //   const hoveredShapes = Query.point(engine.world.bodies, vector);
-    
-  //   hoveredShapes.forEach(shape => {
-
-  //     label = shape.label
-
-  //     console.log(label)
-
-  //     if (label == "box") {
-  //       bubble = this.getElementById("box")
-  //       console.log(bubble.children[0])
-  //       bubble.children[0].style.visibility = "visible"
-  //     }
-      
-  //   });
-    
-  // });
-
   Matter.Events.on(mouseControl, 'mousemove', function (event) {
     //For Matter.Query.point pass "array of bodies" and "mouse position"
-    const vector = event.mouse.absolute;
+    // const vector = event.mouse.absolute;
+    const vector = event.mouse.position;
 
     const hoveredShapes = Query.point(engine.world.bodies, vector);
     
