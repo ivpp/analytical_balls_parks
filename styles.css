@@ -5,9 +5,18 @@
   box-sizing: border-box;
 }
 
+html {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   margin: 0;
   padding: 0;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
   /* font-family: 'Open Sans', sans-serif; */
   font-family: "PT Sans Narrow", sans-serif;
@@ -18,16 +27,26 @@ body {
   height: 600px; */
   background-image: url("backgroupnd.jpg");
   background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
-.canvas_background {
+
+
+#container {
     margin: 0;
     padding: 0;
-    /* background-image: url("map1.png");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 1000px 1000px; */
+    width: 100%;
+    display: flex;
+    flex-direction: row;
 }
+
+@media screen and (max-width: 480px) {
+  #container {
+    flex-direction: column;
+  }
+}
+
 
 h1 {
     position: absolute;
@@ -38,17 +57,18 @@ h1 {
 }
 
 #slide{
-    position: absolute;
+    /* position: absolute; */
     z-index: 4;
     padding: 0.5em;
     margin: 0;
-    top: 200px;
-    left: 2%;
-    width: 20%;
+    /* top: 200px; */
+    /* left: 2%; */
+    /* width: 20%; */
     /* height: 50%; */
     font-size: 1.2em;
     background-color: #858882B3;
     border-radius: 1%;
+    flex: 1;
     display: flex;
     flex-direction: column;
     /* opacity: 0.3; */
@@ -82,15 +102,16 @@ h1 {
 } */
 
 #map_highcharts {
-    position: absolute;
-    left: 35%;
-    width: 30%;
-    height: 75%;
+    /* position: absolute; */
+    /* left: 35%; */
+    /* width: 30%; */
+    /* height: 75%; */
     /* margin-left: -450px; */
     z-index: 1;
     background-color: #85888280;
     border-radius: 1%;
-    margin: 1em
+    margin: 1em;
+    flex: 3;
 }
 
 
