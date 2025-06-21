@@ -172,7 +172,7 @@ window.addEventListener('load', async function() {
     centroids_position.push({x: p.plotX, })
   })
 
-  document.getElementById('map_highcharts').style.zIndex = "4";
+  // document.getElementById('map_highcharts').style.zIndex = "4";
 
   let clickCounter = 0
 
@@ -196,17 +196,16 @@ window.addEventListener('load', async function() {
   });
 
 
+
   let div = document.createElement('img');
-  // div.innerHTML = '<h1 class="tooltiptext">' + data[i].name + "</h1>";
-  // div.innerHTML = '<h1 class="tooltiptext">' + i + "</h1>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800"><path class="spiral" d="" fill="none" stroke="#fdeecd" stroke-width="15"/><path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
   div.setAttribute('class', 'iceCream'); // and make sure myclass has some styles in css
   div.setAttribute('id', "iceCream"); // and make sure myclass has some styles in css
-  div.setAttribute('style', "top: 0px; left:0 px; z-index: 2")
-  // div.setAttribute("src", "icaCream.png")
+  div.setAttribute('style', "top: 110vh; left:0 px; z-index: 0")
+  div.setAttribute("src", "icaCream.png")
   
   document.body.appendChild(div);
 
-  const iceCreammtjs = Matter.Bodies.fromVertices(
+  iceCreammtjs = Matter.Bodies.fromVertices(
     w / 2,
     h ,
     vertexSets = [[
@@ -242,9 +241,9 @@ window.addEventListener('load', async function() {
   iceCreammtjs.label = 'iceCream'
 
 
-  let iceCream = {
+  iceCream = {
     body: iceCreammtjs,
-    elem: document.getElementById("iceCream"),
+    elem: div,
     render() {
       const {x, y} = this.body.position;
       // this.elem.style.top = `${y-175}px`;
@@ -252,15 +251,8 @@ window.addEventListener('load', async function() {
       this.elem.style.left = `${x-250}px`;
       this.elem.style.width = `${this.body.width}px`;
       this.elem.style.height = `${this.body.height}px`;
-      // this.elem.style.backgroundColor = this.body.render.fillStyle;
-      // this.elem.style.borderRadius = "50%"
-      // this.elem.style.borderStyle = "solid"
-      // this.elem.style.borderWidth = "3px"
-      // this.elem.style.borderColor = "#FF0000"
-      // this.elem.style.transform = `rotate(${this.body.angle}rad)`;
     },
   };
-
 
   // Create a wall for the shapes to bounce off
   const wallOptions = {
@@ -272,7 +264,7 @@ window.addEventListener('load', async function() {
 
   const ground = Bodies.rectangle(w / 2, h + 50, w + 100, 100, wallOptions);
   const ceiling = Bodies.rectangle(w / 2, -50, w + 100, 100, wallOptions);
-  const leftWall = Bodies.rectangle(-50, h / 2, 100, h + 100, wallOptions);
+  const leftWall = Bodies.rectangle(w * 0.3 - 50, h / 2, 100, h + 100, wallOptions);
   const rightWall = Bodies.rectangle(w + 50, h / 2, 100, h + 100, wallOptions);
 
   const mouseControl = MouseConstraint.create(engine, {
@@ -294,7 +286,6 @@ window.addEventListener('load', async function() {
 
   console.log(map_highcharts_position, w, h, scale)
 
-
   // Start world engine
   Composite.add(engine.world, [
     ground,
@@ -302,15 +293,14 @@ window.addEventListener('load', async function() {
     leftWall,
     rightWall,
     mouseControl,
-    iceCreammtjs,
-
+    // iceCreammtjs,
   ]);
 
-  (function rerender() {
-    iceCream.render();
-    // Engine.update(engine);
-    requestAnimationFrame(rerender);
-  })()
+  // (function rerender() {
+  //   iceCream.render();
+  //   // Engine.update(engine);
+  //   requestAnimationFrame(rerender);
+  // })()
 
   // Add resize listener
   /* 
@@ -355,12 +345,6 @@ window.addEventListener('load', async function() {
 
   document.querySelector("#arrow").onclick = async function(e) {
 
-
-    document.getElementById('slider').style.display = "block"
-    document.getElementById('map_highcharts').style.display = "block"
-    document.getElementById('map_highcharts').style.width = "20%"
-
-
     let hcKeysLargestSmallest = [
       park_data.reduce((max, p) => max.area > p.area ? max : p)["hc-key"],
       park_data.reduce((min, p) => min.area < p.area ? min : p)["hc-key"]
@@ -371,8 +355,12 @@ window.addEventListener('load', async function() {
 
       document.getElementById('map_highcharts').style.zIndex = "1";
 
+      // await sleep(1000);
+      
+      rollSlide(1)
+
       addDOMBodiesSlowly(bodiesGeometry.filter((b) => hcKeysLargestSmallest.includes(b["hc-key"])))
-      await sleep(50);
+      await sleep(1000);
           
       engine.world.bodies.forEach((b) => {
         if (hcKeysLargestSmallest.includes(b.label)) {
@@ -381,8 +369,8 @@ window.addEventListener('load', async function() {
         }
       });
 
+      document.getElementById('map_highcharts').style.zIndex = "6";
 
-      rollSlide(1)
       
       clickCounter++;
 
@@ -390,11 +378,9 @@ window.addEventListener('load', async function() {
 
 
       rollSlide(2)
-      // document.getElementById("slide").style.top = "0"
 
-      clickCounter++;
-
-    } else if (clickCounter == 2) {
+      document.getElementById('map_highcharts').style.zIndex = "1";
+      // await sleep(1000);
 
       addDOMBodiesSlowly(bodiesGeometry.filter((b) => !hcKeysLargestSmallest.includes(b["hc-key"])))
 
@@ -402,41 +388,59 @@ window.addEventListener('load', async function() {
 
   //  } else if (clickCounter == 2) {
 
-    await sleep(2000);
-    animateByMargin(
-      document.getElementById('iceCream'),
-      "verically",
-      500,
-      0,
-      -20
-    );
+      await sleep(5000);
+      Composite.add(engine.world, [iceCreammtjs]);
+      (function rerender() {
+        iceCream.render();
+        // Engine.update(engine);
+        requestAnimationFrame(rerender);
+      })()
+      animateByMargin(
+        document.getElementById('iceCream'),
+        "verically",
+        500,
+        0,
+        -20
+      );
+
+      
+      i = 0
+      colors = ["#e8e5f9", "#afa9f3", "#8d82d3"]
+      document.querySelectorAll(".park").forEach((p) => {
+        // color = park_data.find((park) => park["hc-key"] == p.id).color
+        p.style.backgroundColor = colors[i]
+        i++
+        if ( i == 3) {
+          i = 0
+        }
+        // p.classList.add('trade')
+      })
 
     
-    i = 0
-    colors = ["#e8e5f9", "#afa9f3", "#8d82d3"]
-    document.querySelectorAll(".park").forEach((p) => {
-      // color = park_data.find((park) => park["hc-key"] == p.id).color
-      p.style.backgroundColor = colors[i]
-      i++
-      if ( i == 3) {
-        i = 0
+      engine.world.bodies.forEach((b) => {
+          if ((b.label != 'Rectangle Body') & (b.label != 'iceCream')) {
+            Body.setMass(b, 0.01 * (b.area))
+            Body.setStatic(b, false)
+          }
+      });
+
+
+      if (w > 800) {
+        document.getElementById('map_highcharts').style.height = "50vh"
+        document.getElementById('map_highcharts').style.width = "30%"
+        document.getElementById('map_highcharts').style.top = "50vh"
+        document.getElementById('map_highcharts').style.left = "0"
+        document.getElementById('info_area').style.width = "30vw"
+      } else {
+        document.getElementById('map_highcharts').style.top = "-50vh"
+        document.getElementById('map_highcharts').remove();
       }
-      // p.classList.add('trade')
-    })
 
-   
-    engine.world.bodies.forEach((b) => {
-        if ((b.label != 'Rectangle Body') & (b.label != 'iceCream')) {
-          Body.setMass(b, 0.01 * (b.area))
-          Body.setStatic(b, false)
-        }
-    });
+      document.getElementById('map_highcharts').style.zIndex = "6";
 
-    document.getElementById('map_highcharts').style.zIndex = "4";
+      clickCounter++;
 
-    clickCounter++;
-
-    } else if (clickCounter == 3) {
+    } else if (clickCounter == 2) {
 
 
       rollSlide(3)
@@ -445,7 +449,7 @@ window.addEventListener('load', async function() {
       for (i = 0; i < engine.world.bodies.length; i++) {
           
         b = engine.world.bodies[i]
-        if (data[i].area < 250 & b.label != 'Rectangle Body') {
+        if (data[i].area < 100 & b.label != 'Rectangle Body' & b.label != 'iceCream') {
           Composite.remove(engine.world, b)
           document.getElementById(b.label).remove();
           i = i - 1
@@ -468,7 +472,7 @@ window.addEventListener('load', async function() {
         20
       );
 
-      console.log(engine.world.bodies.find((b) => b.label == "iceCream"))
+      console.log(123, engine.world.bodies.find((b) => b.label == "iceCream"))
 
       Composite.remove(engine.world, engine.world.bodies.find((b) => b.label == "iceCream"))
 
@@ -486,11 +490,11 @@ window.addEventListener('load', async function() {
             engine.world.bodies.forEach((b) => {
 
                 if (b.label != 'Rectangle Body') {
-                  Body.scale(b, 1.1, 1.1)
+                  Body.scale(b, 1.2, 1.2)
                 }
             });
             i++;  
-            if (i < 15) { 
+            if (i < 8) { 
               scale_parks()
             } 
           }, 0.1)
@@ -525,10 +529,12 @@ window.addEventListener('load', async function() {
       clickCounter++;
   
 
-    } else if (clickCounter == 4) {
+    } else if (clickCounter == 3) {
 
 
         await sleep(200);
+
+        rollSlide(1)
 
         document.querySelectorAll(".spiral").forEach((s) => {
              s.style.visibility = "hidden"
@@ -783,7 +789,7 @@ function rollSlide(slideNum) {
     document.getElementById('slide_next'),
     "verically",
     0,
-    800,
+    1000,
     20
   );
 
@@ -805,7 +811,7 @@ function rollSlide(slideNum) {
 }
 
 
-function addDOMBody(bodyGeometry) {
+async function addDOMBody(bodyGeometry) {
 
   let div = document.createElement('div');
   // div.innerHTML = '<h1 class="tooltiptext">' + data[i].name + "</h1>";
@@ -865,7 +871,7 @@ function addDOMBody(bodyGeometry) {
 
 }
 
-function addDOMBodiesSlowly(bodiesGeometry) {
+async function addDOMBodiesSlowly(bodiesGeometry) {
 
   const bodiesGeometryLength = bodiesGeometry.length;
 
@@ -883,7 +889,7 @@ function addDOMBodiesSlowly(bodiesGeometry) {
         myLoop(i);
       }
 
-    }, 0.1)
+    }, 20)
   }
 
   myLoop(i)
