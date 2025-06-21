@@ -7,17 +7,21 @@ function sleep(ms) {
 }
 
 
-document.addEventListener('DOMContentLoaded', async function() { 
+const { Engine, Render, Body, Bodies, World, Composite, MouseConstraint, Mouse, Composites, Query } = Matter;
 
-  /* --- System Parameters (Recommended)--- */
-  let pBounce = 0.75;  // Define Bounciness (0.8)
-  let pFriction = 0.01; // Define air friction (0.01)
-  // mouse click in mid-air to create more particles
+let pBounce = 0.75;  // Define Bounciness (0.8)
+let pFriction = 0.01; // Define air friction (0.01)
+// mouse click in mid-air to create more particles
 
-  let w  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-  let h = window.innerHeight|| document.documentElement.clientHeight || document.body.clientHeight;
+let w  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+let h = window.innerHeight|| document.documentElement.clientHeight || document.body.clientHeight;
 
-  park_data.forEach((p) => delete p.color)
+park_data.forEach((p) => delete p.color)
+
+
+
+
+window.addEventListener('load', async function() { 
 
   chart = Highcharts.mapChart('map_highcharts', {
 
@@ -163,7 +167,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   });
 
    
-  console.log(chart)
   centroids_position = []
   chart.series[2].points.forEach((p) => {
     centroids_position.push({x: p.plotX, })
@@ -174,12 +177,12 @@ document.addEventListener('DOMContentLoaded', async function() {
   let clickCounter = 0
 
 
-  const { Engine, Render, Body, Bodies, World, Composite, MouseConstraint, Mouse, Composites, Query } = Matter;
+  // const { Engine, Render, Body, Bodies, World, Composite, MouseConstraint, Mouse, Composites, Query } = Matter;
 
 
   const sectionTag = document.getElementById("matter_area");
-  const engine = Engine.create();
-  const renderer = Render.create({
+  engine = Engine.create()
+  renderer = Render.create({
     canvas: sectionTag,
     engine: engine,
     options: {
@@ -199,11 +202,9 @@ document.addEventListener('DOMContentLoaded', async function() {
   div.setAttribute('class', 'iceCream'); // and make sure myclass has some styles in css
   div.setAttribute('id', "iceCream"); // and make sure myclass has some styles in css
   div.setAttribute('style', "top: 0px; left:0 px; z-index: 2")
-  div.setAttribute("src", "icaCream.png")
+  // div.setAttribute("src", "icaCream.png")
   
   document.body.appendChild(div);
-
-  console.log(w, h)
 
   const iceCreammtjs = Matter.Bodies.fromVertices(
     w / 2,
@@ -227,14 +228,15 @@ document.addEventListener('DOMContentLoaded', async function() {
       isStatic: true,
       label: 'iceCream',
       render: {
-        // sprite: {
-        //   texture: './waffel.jpg',
-        //   yScale: 0.5,
-        //   xScale: 0.5, 
-        // },
-        // fillStyle: park_data[i].color,
-        // strokeStyle: "#FF0000",
-        // lineWidth: 5,
+        visible: true,
+        sprite: {
+          // texture: './waffel.jpg',
+          yScale: 0.5,
+          xScale: 0.5, 
+        },
+        fillStyle: "#FF0000",
+        strokeStyle: "#FF0000",
+        lineWidth: 5,
     }
   })
   iceCreammtjs.label = 'iceCream'
@@ -248,8 +250,8 @@ document.addEventListener('DOMContentLoaded', async function() {
       // this.elem.style.top = `${y-175}px`;
       this.elem.style.top = `${y-310}px`;
       this.elem.style.left = `${x-250}px`;
-      // this.elem.style.width = `${this.body.circleRadius * 2}px`;
-      // this.elem.style.height = `${this.body.circleRadius * 2}px`;
+      this.elem.style.width = `${this.body.width}px`;
+      this.elem.style.height = `${this.body.height}px`;
       // this.elem.style.backgroundColor = this.body.render.fillStyle;
       // this.elem.style.borderRadius = "50%"
       // this.elem.style.borderStyle = "solid"
@@ -258,11 +260,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       // this.elem.style.transform = `rotate(${this.body.angle}rad)`;
     },
   };
-
-  // console.log(circle_mtjs)
-
-  // Composite.add(engine.world, iceCreammtjs);
-
 
 
   // Create a wall for the shapes to bounce off
@@ -287,40 +284,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   });
 
-  console.log(renderer)
 
   let scale = 1 + (1 / (window.devicePixelRatio / (1 - window.devicePixelRatio)))
 
   Mouse.setScale(mouseControl.mouse, {x: scale, y: scale})
 
-  // // Create a stack of 15 x 5 bubbles
-  // const intialShapes = Composites.stack(50, 50, 15, 1, 0, 0, function(x, y, radius){
-  //   return createShape(x, y, radius)
-  // });
-
-  function getOffset(el) {
-    const rect = el.getBoundingClientRect();
-    return {
-      left: rect.left + window.scrollX,
-      top: rect.top + window.scrollY
-    };
-  }
 
   map_highcharts_position = getOffset(document.getElementById("map_highcharts"))
 
-  // const circle1 = Bodies.circle(coords.left + 500, 200, 37.5, {
-  //     frictionAir: pFriction,
-  //     restitution: pBounce,
-  //     isStatic: true,
-  //     render: {
-  //       sprite: {
-  //         yScale: 0.5,
-  //         xScale: 0.5, 
-  //       },
-  //       fillStyle: 'blue',
-  //       strokeStyle: 'blue',
-  //     }
-  //   })
+  console.log(map_highcharts_position, w, h, scale)
+
 
   // Start world engine
   Composite.add(engine.world, [
@@ -333,23 +306,12 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   ]);
 
-
   (function rerender() {
     iceCream.render();
     // Engine.update(engine);
     requestAnimationFrame(rerender);
   })()
 
-  // (function rerender() {
-  //   box.render();
-  //   Engine.update(engine);
-  //   requestAnimationFrame(rerender);
-  // })()
-  
-
-
-
-  
   // Add resize listener
   /* 
   window.addEventListener("resize", function() {
@@ -364,268 +326,89 @@ document.addEventListener('DOMContentLoaded', async function() {
   });
   */
 
-
-
-  // ########### Old function to create parks: 
-  // var i = 0;
-  // parks = []
-  // console.log(data)
-  // function myLoop(x, y, radius) {
-  //   setTimeout(function() {
-  //     const circle = Bodies.circle(x, y, radius, {
-  //       frictionAir: pFriction,
-  //       restitution: pBounce,
-  //       friction: 1,
-  //       frictionStatic: 1,
-  //       slop: 0,
-  //       isStatic: true,
-  //       label: data[i].name,
-  //       render: {
-  //         sprite: {
-  //           yScale: 0.5,
-  //           xScale: 0.5, 
-  //         },
-  //         fillStyle: data[i].color,
-  //         strokeStyle: "#FF0000",
-  //         lineWidth: 5,
-  //       }
-  //     })
-
-  //     Composite.add(engine.world, circle);
-
-  //     parks 
-  //     i++;
-  //     if (i < 117) {
-  //       myLoop(coords.left + data[i].offset_x / 100, 900 - data[i].offset_y / 100, data[i].radius / 80);
-  //     }
-  //   }, 10)
-  // }
-
-  // myLoop(coords.left + data[i].offset_x / 100, 900 - data[i].offset_y / 100, data[i].radius / 80);  
-
-
-  // console.log(slides[0])
-
-
-
   document.getElementById("slide").innerHTML = slides[0]
 
+  let m_pix = (
+    chart.series[2].points[1].y
+    - chart.series[2].points[0].y
+  ) / (
+    chart.series[2].points[0].plotY
+    - chart.series[2].points[1].plotY
+  ) / 2
 
 
+  bodiesGeometry = []
+  for (let i = 0; i < park_data.length; i++) {
 
-  document.querySelector(".title").onclick = async function(e) {
+    // console.log(i, park_data[i]["hc-key"])
+    bodiesGeometry.push({
+      "hc-key": park_data[i]["hc-key"],
+      "name": park_data[i]["name"],
+      "x": chart.series[2].points[i].plotX + map_highcharts_position.left + 10,
+      "y": chart.series[2].points[i].plotY + map_highcharts_position.top + 10,
+      "radius": park_data[i].radius / m_pix * scale
+    })
+  }
 
+
+  console.log(engine)
+
+  document.querySelector("#arrow").onclick = async function(e) {
+
+
+    document.getElementById('slider').style.display = "block"
+    document.getElementById('map_highcharts').style.display = "block"
+    document.getElementById('map_highcharts').style.width = "20%"
+
+
+    let hcKeysLargestSmallest = [
+      park_data.reduce((max, p) => max.area > p.area ? max : p)["hc-key"],
+      park_data.reduce((min, p) => min.area < p.area ? min : p)["hc-key"]
+    ]
 
     // if (clickCounter == 0 & engine.world.bodies.length == 121) {
     if (clickCounter == 0) {
-    // var i = 1
-    // map = document.getElementById("map_highcharts")
-    // function remove_map() { 
-    //   setTimeout(function() { 
-    //     // map.style.top =  - (i * 20) + "px";
-    //     map.style.left =  + (i * 20) + "px";
-    //     i++;  
-    //     if (i < 10) { 
-    //       remove_map()
-    //     } 
-    //   }, 0.01)
-
-    // }
-
-    // remove_map();
-
-
-      // document.getElementById("slide").innerHTML = slides[0]
-      
-
-      // ########### New function to create parks: 
-
-      // const path = getPath({x:400,y:400}, 0, 50, 0, 5*360, 30);
-      // const path2 = getPath({x:400,y:400}, 0, 60, 0, 3*270, 30);
 
       document.getElementById('map_highcharts').style.zIndex = "1";
 
-      m_pix = (
-        chart.series[2].points[1].y
-        - chart.series[2].points[0].y
-      ) / (
-        chart.series[2].points[0].plotY
-        - chart.series[2].points[1].plotY
-      ) / 2
-
-      var i = 0;
-
-      function myLoop(x, y, radius) {
-        setTimeout(function() {
-
-          // console.log(park_data[i]["hc-key"])
-
-          let div = document.createElement('div');
-          // div.innerHTML = '<h1 class="tooltiptext">' + data[i].name + "</h1>";
-          div.innerHTML = '<h1 class="tooltiptext">' + park_data[i]["name"] + "</h1>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800"><path class="spiral" d="" fill="none" stroke="#fdeecd" stroke-width="15"/><path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
-          div.setAttribute('class', 'park'); // and make sure myclass has some styles in css
-          div.setAttribute('id', park_data[i]["hc-key"]); // and make sure myclass has some styles in css
-          div.setAttribute('style', "top: 0px; left:0 px; z-index: 2")
+      addDOMBodiesSlowly(bodiesGeometry.filter((b) => hcKeysLargestSmallest.includes(b["hc-key"])))
+      await sleep(50);
           
-          document.body.appendChild(div);
-
-          const circle_mtjs = Bodies.circle(x, y, radius, {
-            frictionAir: pFriction,
-            restitution: pBounce,
-            friction: 0.7,
-            frictionStatic:  0.7,
-            slop: 0,
-            isStatic: true,
-            label: park_data[i]["hc-key"],
-            render: {
-              // sprite: {
-              //   yScale: 0.5,
-              //   xScale: 0.5, 
-              // },
-              // fillStyle: park_data[i].color,
-              fillStyle: "#29522a",
-              strokeStyle: "#FF0000",
-              lineWidth: 5,
-            }
-          })
+      engine.world.bodies.forEach((b) => {
+        if (hcKeysLargestSmallest.includes(b.label)) {
+          Body.setMass(b, 0.01 * (b.area))
+          Body.setStatic(b, false)
+        }
+      });
 
 
-          let circle = {
-            body: circle_mtjs,
-            elem: document.getElementById(park_data[i]["hc-key"]),
-            render() {
-              const {x, y} = this.body.position;
-              this.elem.style.top = `${y - this.body.circleRadius}px`;
-              this.elem.style.left = `${x - this.body.circleRadius}px`;
-              this.elem.style.width = `${this.body.circleRadius * 2}px`;
-              this.elem.style.height = `${this.body.circleRadius * 2}px`;
-              // this.elem.style.transition = "background-color 1s"
-              // this.elem.style.backgroundColor = "#498334"
-              // this.elem.style.backgroundColor = this.body.render.fillStyle;
-              // this.elem.style.borderRadius = "50%"
-              // this.elem.style.borderStyle = "solid"
-              // this.elem.style.borderWidth = this.body.render.lineWidth;
-              // this.elem.style.borderColor = this.body.render.strokeStyle;
-              // this.elem.style.transform = `rotate(${this.body.angle}rad)`;
-            },
-          };
+      rollSlide(1)
+      
+      clickCounter++;
 
-          // console.log(circle_mtjs)
+    } else if (clickCounter == 1) {
 
-          Composite.add(engine.world, circle_mtjs);
 
-          (function rerender() {
-            circle.render();
-            // Engine.update(engine);
-            requestAnimationFrame(rerender);
-          })()
+      rollSlide(2)
+      // document.getElementById("slide").style.top = "0"
 
-          // chart.series[1].data[i].update({
-          //     opacity: 0.2
-          // })
+      clickCounter++;
 
-          i++;
-          if (i < 117) {
-            myLoop(
-              chart.series[2].points[i].plotX + map_highcharts_position.left + 10,
-              chart.series[2].points[i].plotY + map_highcharts_position.top + 10,
-              park_data[i].radius / m_pix * scale
-            );
-          }
-        }, 10)
-      }
+    } else if (clickCounter == 2) {
 
-      myLoop(
-        chart.series[2].points[i].plotX + map_highcharts_position.left + 10,
-        chart.series[2].points[i].plotY + map_highcharts_position.top + 10,
-        park_data[i].radius / m_pix * scale
-      );
+      addDOMBodiesSlowly(bodiesGeometry.filter((b) => !hcKeysLargestSmallest.includes(b["hc-key"])))
 
-  // console.log(engine.world)
+      // clickCounter++;
 
+  //  } else if (clickCounter == 2) {
 
     await sleep(2000);
-
-
-    function animateLeft(obj, from, to){
-      if(from >= to){         
-          // obj.style.visibility = 'hidden';
-          return;  
-      }
-      else {
-          var box = obj;
-          box.style.marginLeft = from + "px";
-          setTimeout(function(){
-              animateLeft(obj, from + 20, to);
-          }, 0.1) 
-      }
-    }
-
-    animateLeft(
-      document.getElementById('map_highcharts'),
-      0,
-      map_highcharts_position.left
-    );
-    
-    animateByMargin(
-      document.getElementById('map_highcharts'),
-      "hirizontally",
-      0,
-      500,
-      20
-    );
-
-    // function animateTop(obj, from, to){
-    //   if(from < to){         
-    //       // obj.style.visibility = 'hidden';
-    //       return;  
-    //   }
-    //   else {
-    //       var box = obj;
-    //       box.style.marginTop = from + "px";
-
-    //       console.log(box.style.marginTop)
-    //       setTimeout(function(){
-    //           animateTop(obj, from - 20, to);
-    //       }, 0.1) 
-    //   }
-    // }
-
-    // console.log(iceCreammtjs.position)
-
-    // animateTop(
-    //   document.getElementById('iceCream'),
-    //   500,
-    //   0
-    // );
-
-
-
     animateByMargin(
       document.getElementById('iceCream'),
       "verically",
       500,
       0,
       -20
-    );
-
-
-    document.getElementById("slide_next").innerHTML = slides[1]
-
-    animateByMargin(
-      document.getElementById('slide'),
-      "verically",
-      0,
-      1000,
-      20
-    );
-
-    animateByMargin(
-      document.getElementById('slide_next'),
-      "verically",
-      0,
-      800,
-      20
     );
 
     
@@ -653,7 +436,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     clickCounter++;
 
-    } else if (clickCounter == 1) {
+    } else if (clickCounter == 3) {
+
+
+      rollSlide(3)
+
 
       for (i = 0; i < engine.world.bodies.length; i++) {
           
@@ -684,28 +471,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       console.log(engine.world.bodies.find((b) => b.label == "iceCream"))
 
       Composite.remove(engine.world, engine.world.bodies.find((b) => b.label == "iceCream"))
-
-      document.getElementById('slide_next').setAttribute("id", "slide_")
-      document.getElementById('slide').setAttribute("id", "slide_next")
-      document.getElementById('slide_').setAttribute("id", "slide")
-
-      document.getElementById("slide_next").innerHTML = slides[2]
-
-      animateByMargin(
-        document.getElementById('slide'),
-        "verically",
-        0,
-        1000,
-        20
-      );
-
-      animateByMargin(
-        document.getElementById('slide_next'),
-        "verically",
-        0,
-        800,
-        20
-      );
 
 
     //   clickCounter++;
@@ -760,30 +525,8 @@ document.addEventListener('DOMContentLoaded', async function() {
       clickCounter++;
   
 
-    } else if (clickCounter == 2) {
+    } else if (clickCounter == 4) {
 
-
-      document.getElementById('slide_next').setAttribute("id", "slide_")
-      document.getElementById('slide').setAttribute("id", "slide_next")
-      document.getElementById('slide_').setAttribute("id", "slide")
-
-      document.getElementById("slide_next").innerHTML = slides[3]
-
-      animateByMargin(
-        document.getElementById('slide'),
-        "verically",
-        0,
-        1000,
-        20
-      );
-
-      animateByMargin(
-        document.getElementById('slide_next'),
-        "verically",
-        0,
-        800,
-        20
-      );
 
         await sleep(200);
 
@@ -971,8 +714,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
 
-
-
 function animateByMargin(obj, direction, from, to, step){
   if((from - step) == to){         
       return;  
@@ -992,4 +733,159 @@ function animateByMargin(obj, direction, from, to, step){
     }, 0.1) 
 
   }
+}
+
+
+
+
+function getOffset(el) {
+  const rect = el.getBoundingClientRect();
+  return {
+    left: rect.left + window.scrollX,
+    top: rect.top + window.scrollY
+    // left: w / 10  + window.scrollX,
+    // top: rect.top + window.scrollY
+  };
+}
+
+
+function rollSlide(slideNum) {
+
+  // document.getElementById('slide').style.top = "600px"
+
+
+
+  // document.getElementById("slide_next").innerHTML = slides[1]
+
+  // slPos = getOffset(document.getElementById("slide"))
+  
+  // console.log(slPos)
+
+  // console.log(document.getElementById("slide_next").style.top)
+
+  // document.getElementById("slide_next").style.top =  slPos.top +"px"
+
+
+  // document.getElementById("slide").style.marginTop = h + 10 + "px"
+
+
+  document.getElementById("slide_next").innerHTML = slides[slideNum]
+
+  animateByMargin(
+    document.getElementById('slide'),
+    "verically",
+    0,
+    1000,
+    20
+  );
+
+  animateByMargin(
+    document.getElementById('slide_next'),
+    "verically",
+    0,
+    800,
+    20
+  );
+
+  document.getElementById('slide_next').setAttribute("id", "slide_")
+  document.getElementById('slide').setAttribute("id", "slide_next")
+  document.getElementById('slide_').setAttribute("id", "slide")
+
+  // document.getElementById("slide_next").innerHTML = slides[slideNum]
+
+  // document.getElementById("slide_next").style.marginTop = "1000px"
+  // document.getElementById("slide").style.marginTop = "1000px"
+
+
+
+  // document.getElementById('slide_next').setAttribute("id", "slide_")
+  // document.getElementById('slide').setAttribute("id", "slide_next")
+  // document.getElementById('slide_').setAttribute("id", "slide")
+
+}
+
+
+function addDOMBody(bodyGeometry) {
+
+  let div = document.createElement('div');
+  // div.innerHTML = '<h1 class="tooltiptext">' + data[i].name + "</h1>";
+  div.innerHTML = '<h1 class="tooltiptext">' + bodyGeometry.name + "</h1>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800"><path class="spiral" d="" fill="none" stroke="#fdeecd" stroke-width="15"/><path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
+  div.setAttribute('class', 'park'); // and make sure myclass has some styles in css
+  div.setAttribute('id', bodyGeometry["hc-key"]); // and make sure myclass has some styles in css
+  div.setAttribute('style', "top: 0px; left:0 px; z-index: 2")
+  
+  document.body.appendChild(div);
+
+  const circle_mtjs = Bodies.circle(bodyGeometry.x, bodyGeometry.y, bodyGeometry.radius, {
+    frictionAir: pFriction,
+    restitution: pBounce,
+    friction: 0.7,
+    frictionStatic:  0.7,
+    slop: 0,
+    isStatic: true,
+    label: bodyGeometry["hc-key"],
+    render: {
+      // sprite: {
+      //   yScale: 0.5,
+      //   xScale: 0.5, 
+      // },
+      // fillStyle: park_data[i].color,
+      fillStyle: "#29522a",
+      strokeStyle: "#FF0000",
+      lineWidth: 5,
+    }
+  })
+
+  let circle = {
+    body: circle_mtjs,
+    elem: div, //document.getElementById(hcKey),
+    render() {
+      const {x, y} = this.body.position;
+      this.elem.style.top = `${y - this.body.circleRadius}px`;
+      this.elem.style.left = `${x - this.body.circleRadius}px`;
+      this.elem.style.width = `${this.body.circleRadius * 2}px`;
+      this.elem.style.height = `${this.body.circleRadius * 2}px`;
+      // this.elem.style.transition = "background-color 1s"
+      // this.elem.style.backgroundColor = "#498334"
+      // this.elem.style.backgroundColor = this.body.render.fillStyle;
+      // this.elem.style.borderRadius = "50%"
+      // this.elem.style.borderStyle = "solid"
+      // this.elem.style.borderWidth = this.body.render.lineWidth;
+      // this.elem.style.borderColor = this.body.render.strokeStyle;
+      // this.elem.style.transform = `rotate(${this.body.angle}rad)`;
+    },
+  };
+
+  Composite.add(engine.world, circle_mtjs);
+
+  (function rerender() {
+    circle.render();
+    requestAnimationFrame(rerender);
+  })()
+
+}
+
+function addDOMBodiesSlowly(bodiesGeometry) {
+
+  const bodiesGeometryLength = bodiesGeometry.length;
+
+  console.log(bodiesGeometryLength)
+
+  let i = 0;
+
+  function myLoop(i) {
+
+    setTimeout(function() {
+
+      addDOMBody(bodiesGeometry[i])
+      i++;
+      if (i < bodiesGeometryLength) {
+        myLoop(i);
+      }
+
+    }, 0.1)
+  }
+
+  myLoop(i)
+
 }

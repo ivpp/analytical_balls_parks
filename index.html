@@ -20,7 +20,7 @@
 
   <script src="districts_old_mos.js"></script>
 
-  <script src="src.js"></script>
+  <script src="src.js" defer ></script>
 
 
 <!-- <script src="scripts/proj4.js"></script> -->
@@ -37,14 +37,26 @@
 
 <body>
     <div id="container">
+      <div id="arrow"></div>
+      <div class="row">
         <h1 class="title">Парки Москвы</h1>
+      </div>
+      <div class="row" id="row_1">
         <!-- <img class="slide" src="slides/slide1.png"> -->
         <!-- <embed class="slide" src="slides/slide1.pdf" width="800px" height="600px" /> -->
-        <div class="slide" id="slide"></div>
-        <div class="slide" id="slide_next"></div>
+        <div id="slider">
+          <div class="slide" id="slide"></div>
+          <div class="slide" id="slide_next"></div>
+        </div>  
+        <!-- <div class="slide" id="slide_next"></div> -->
         <div id="map_highcharts"></div>
         <!-- <img id="map" src="map1.png"> -->
-        <canvas id="matter_area"></canvas>
-        <div id="poly"></div>
+          
+        <!-- <canvas id="matter_area"></canvas> -->
+        <!-- <div id="poly"></div> -->
+      </div>
+      <canvas id="matter_area"></canvas>
+      <!-- <div class="slide" id="slide_next"></div> -->
     </div>
+   
 </body>
