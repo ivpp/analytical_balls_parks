@@ -7,7 +7,7 @@ function sleep(ms) {
 }
 
 
-const { Engine, Render, Body, Bodies, World, Composite, MouseConstraint, Mouse, Composites, Query } = Matter;
+const { Engine, Render, Body, Bodies, World, Composite, MouseConstraint, Mouse, Composites, Query, Runner } = Matter;
 
 let pBounce = 0.75;  // Define Bounciness (0.8)
 let pFriction = 0.01; // Define air friction (0.01)
@@ -102,6 +102,7 @@ window.addEventListener('load', async function() {
               },
 
               point: {
+                borderWidth: 0,
                 events: {
                   mouseOver: function() {
                     document.querySelectorAll(".park").forEach((p) => {
@@ -181,7 +182,18 @@ window.addEventListener('load', async function() {
 
 
   const sectionTag = document.getElementById("matter_area");
-  engine = Engine.create()
+  engine = Engine.create(
+    {
+      constraintIterations: 10, 
+      velocityIterations: 10,
+      positionIterations: 10,
+      // timing: {
+      //   lastDelta: 100,
+      //   timeScale: 1
+      // }
+    }  
+  )
+
   renderer = Render.create({
     canvas: sectionTag,
     engine: engine,
@@ -220,10 +232,10 @@ window.addEventListener('load', async function() {
     ]],
       {
       frictionAir: pFriction,
-      restitution: -0.5,
-      friction: 0.1,
-      frictionStatic: 0.1,
-      slop: 0,
+      restitution: 0,
+      friction: 0,
+      frictionStatic: 0,
+      // slop: 0.05,
       isStatic: true,
       label: 'iceCream',
       render: {
@@ -257,15 +269,24 @@ window.addEventListener('load', async function() {
   // Create a wall for the shapes to bounce off
   const wallOptions = {
     isStatic: true,
+    friction: 0,
+    frictionStatic: 0,
     render: {
       visible: true
     }
   };
 
   const ground = Bodies.rectangle(w / 2, h + 50, w + 100, 100, wallOptions);
+  const ground2 = Bodies.rectangle(w / 2, h - 20, w / 5, 100, wallOptions);
   const ceiling = Bodies.rectangle(w / 2, -50, w + 100, 100, wallOptions);
-  const leftWall = Bodies.rectangle(w * 0.3 - 50, h / 2, 100, h + 100, wallOptions);
+  // const leftWall = Bodies.rectangle(w * 0.3 - 50, h / 2, 100, h + 100, wallOptions);
   const rightWall = Bodies.rectangle(w + 50, h / 2, 100, h + 100, wallOptions);
+
+  if (w > 800) {
+    leftWall = Bodies.rectangle(w * 0.3 - 50, h / 2, 100, h + 100, wallOptions);
+  } else {
+    leftWall = Bodies.rectangle(-50, h / 2, 100, h + 100, wallOptions);
+  }
 
   const mouseControl = MouseConstraint.create(engine, {
     element: sectionTag,
@@ -289,6 +310,7 @@ window.addEventListener('load', async function() {
   // Start world engine
   Composite.add(engine.world, [
     ground,
+    // ground2,
     ceiling,
     leftWall,
     rightWall,
@@ -303,18 +325,22 @@ window.addEventListener('load', async function() {
   // })()
 
   // Add resize listener
-  /* 
-  window.addEventListener("resize", function() {
-    w = window.innerWidth;
-    h = window.innerHeight;
-    renderer = Render.run({
-      options: {
-        width: w,
-        height: h,
-      }
-    })
-  });
-  */
+  
+  // window.addEventListener("resize", function() {
+  //   w = window.innerWidth;
+  //   h = window.innerHeight;
+  //   renderer = Render.run({
+  //     options: {
+  //       width: w,
+  //       height: h,
+  //     }
+  //   })
+
+  //   let scale = 1 + (1 / (window.devicePixelRatio / (1 - window.devicePixelRatio)))
+  //   Mouse.setScale(mouseControl.mouse, {x: scale, y: scale})
+    
+  // });
+  
 
   document.getElementById("slide").innerHTML = slides[0]
 
@@ -336,12 +362,14 @@ window.addEventListener('load', async function() {
       "name": park_data[i]["name"],
       "x": chart.series[2].points[i].plotX + map_highcharts_position.left + 10,
       "y": chart.series[2].points[i].plotY + map_highcharts_position.top + 10,
-      "radius": park_data[i].radius / m_pix * scale
+      "radius": park_data[i].radius / m_pix * scale * 1.2
     })
   }
 
 
-  console.log(engine)
+  // bodiesGeometry.forEach((b) => addDOMBody(b))
+
+  console.log("engine", engine)
 
   document.querySelector("#arrow").onclick = async function(e) {
 
@@ -352,43 +380,36 @@ window.addEventListener('load', async function() {
 
     // if (clickCounter == 0 & engine.world.bodies.length == 121) {
     if (clickCounter == 0) {
-
-      document.getElementById('map_highcharts').style.zIndex = "1";
-
-      // await sleep(1000);
       
       rollSlide(1)
 
-      addDOMBodiesSlowly(bodiesGeometry.filter((b) => hcKeysLargestSmallest.includes(b["hc-key"])))
-      await sleep(1000);
-          
+      bodiesGeometry.filter((b) => hcKeysLargestSmallest.includes(b["hc-key"])).forEach((b) => addDOMBody(b))
+      addDOMBodiesVisibility(bodiesGeometry.filter((b) => hcKeysLargestSmallest.includes(b["hc-key"])), 1000)
       engine.world.bodies.forEach((b) => {
         if (hcKeysLargestSmallest.includes(b.label)) {
-          Body.setMass(b, 0.01 * (b.area))
           Body.setStatic(b, false)
+          Body.setMass(b, 1) //0.01 * (b.area))
         }
       });
-
-      document.getElementById('map_highcharts').style.zIndex = "6";
-
       
+      await sleep(1000);
+      bodiesGeometry.filter((b) => !hcKeysLargestSmallest.includes(b["hc-key"])).forEach((b) => addDOMBody(b))
+      bodiesGeometry
+        .filter((b) => hcKeysLargestSmallest.includes(b["hc-key"]))
+        .forEach((b) => document.getElementById(b["hc-key"]).style.zIndex = "2")
+
+      // document.getElementById('map_highcharts').style.zIndex = "6";
+
       clickCounter++;
 
     } else if (clickCounter == 1) {
 
-
       rollSlide(2)
 
-      document.getElementById('map_highcharts').style.zIndex = "1";
-      // await sleep(1000);
+      addDOMBodiesVisibility(bodiesGeometry.filter((b) => !hcKeysLargestSmallest.includes(b["hc-key"])), 500)
+      
+      await sleep(4000);
 
-      addDOMBodiesSlowly(bodiesGeometry.filter((b) => !hcKeysLargestSmallest.includes(b["hc-key"])))
-
-      // clickCounter++;
-
-  //  } else if (clickCounter == 2) {
-
-      await sleep(5000);
       Composite.add(engine.world, [iceCreammtjs]);
       (function rerender() {
         iceCream.render();
@@ -403,6 +424,20 @@ window.addEventListener('load', async function() {
         -20
       );
 
+
+      engine.world.bodies.filter((b) => hcKeysLargestSmallest.includes(b.label)).forEach((b) => {
+        console.log(b.label)
+        Body.applyForce(b, b.position, {x: 0, y: -0.015})
+      })
+      
+      await sleep(50);
+      Composite.add(engine.world, [
+        ground2,
+      ]);
+
+
+      document.getElementById("coffee").style.backgroundImage = 'url("coffee.png")'
+      document.getElementById("park_alley").style.opacity = 0
       
       i = 0
       colors = ["#e8e5f9", "#afa9f3", "#8d82d3"]
@@ -419,12 +454,13 @@ window.addEventListener('load', async function() {
     
       engine.world.bodies.forEach((b) => {
           if ((b.label != 'Rectangle Body') & (b.label != 'iceCream')) {
-            Body.setMass(b, 0.01 * (b.area))
             Body.setStatic(b, false)
+            Body.setMass(b, 1)//0.01 * (b.area))
+            // Body.setStatic(b, false)
           }
       });
 
-
+      await sleep(1000);
       if (w > 800) {
         document.getElementById('map_highcharts').style.height = "50vh"
         document.getElementById('map_highcharts').style.width = "30%"
@@ -436,7 +472,12 @@ window.addEventListener('load', async function() {
         document.getElementById('map_highcharts').remove();
       }
 
-      document.getElementById('map_highcharts').style.zIndex = "6";
+
+      bodiesGeometry
+        .filter((b) => !hcKeysLargestSmallest.includes(b["hc-key"]))
+        .forEach((b) => document.getElementById(b["hc-key"]).style.zIndex = "2")
+
+      // document.getElementById('map_highcharts').style.zIndex = "6";
 
       clickCounter++;
 
@@ -446,10 +487,14 @@ window.addEventListener('load', async function() {
       rollSlide(3)
 
 
+      document.getElementById("bicycle_road").style.backgroundImage = 'url("bicycle_road.png")'
+      document.getElementById("coffee").style.opacity = 0
+
+
       for (i = 0; i < engine.world.bodies.length; i++) {
           
         b = engine.world.bodies[i]
-        if (data[i].area < 100 & b.label != 'Rectangle Body' & b.label != 'iceCream') {
+        if (data[i].area < 150 & b.label != 'Rectangle Body' & b.label != 'iceCream') {
           Composite.remove(engine.world, b)
           document.getElementById(b.label).remove();
           i = i - 1
@@ -494,7 +539,7 @@ window.addEventListener('load', async function() {
                 }
             });
             i++;  
-            if (i < 8) { 
+            if (i < 9) { 
               scale_parks()
             } 
           }, 0.1)
@@ -535,6 +580,11 @@ window.addEventListener('load', async function() {
         await sleep(200);
 
         rollSlide(1)
+
+
+        document.getElementById("evening_park").style.backgroundImage = 'url("evening_park.png")'
+        document.getElementById("bicycle_road").style.opacity = 0
+
 
         document.querySelectorAll(".spiral").forEach((s) => {
              s.style.visibility = "hidden"
@@ -612,6 +662,9 @@ window.addEventListener('load', async function() {
 
   Matter.Runner.run(engine);
   // Matter.Render.run(renderer);
+
+
+   Engine.constraintIterations 
 
   // Add time-dependent gravity
   // let time = 0;
@@ -815,19 +868,19 @@ async function addDOMBody(bodyGeometry) {
 
   let div = document.createElement('div');
   // div.innerHTML = '<h1 class="tooltiptext">' + data[i].name + "</h1>";
-  div.innerHTML = '<h1 class="tooltiptext">' + bodyGeometry.name + "</h1>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800"><path class="spiral" d="" fill="none" stroke="#fdeecd" stroke-width="15"/><path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
+  div.innerHTML = '<p class="tooltiptext">' + bodyGeometry.name + "</p>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800"><path class="spiral" d="" fill="none" stroke="#fdeecd" stroke-width="15"/><path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
   div.setAttribute('class', 'park'); // and make sure myclass has some styles in css
   div.setAttribute('id', bodyGeometry["hc-key"]); // and make sure myclass has some styles in css
-  div.setAttribute('style', "top: 0px; left:0 px; z-index: 2")
+  div.setAttribute('style', "top: 0px; left:0 px; z-index: 7; visibility: hidden")
   
   document.body.appendChild(div);
 
   const circle_mtjs = Bodies.circle(bodyGeometry.x, bodyGeometry.y, bodyGeometry.radius, {
     frictionAir: pFriction,
     restitution: pBounce,
-    friction: 0.7,
-    frictionStatic:  0.7,
-    slop: 0,
+    friction: 0,
+    frictionStatic:  0,
+    // slop: 0,
     isStatic: true,
     label: bodyGeometry["hc-key"],
     render: {
@@ -890,6 +943,47 @@ async function addDOMBodiesSlowly(bodiesGeometry) {
       }
 
     }, 20)
+  }
+
+  myLoop(i)
+
+}
+
+
+
+
+
+
+// bodiesGeometry.forEach((b) => addDOMBody(b))
+
+async function addDOMBodiesVisibility(bodiesGeometry, pause) {
+
+  const bodiesGeometryLength = bodiesGeometry.length;
+  
+  let pauses = [pause]
+  for (j = 1; j < bodiesGeometryLength; j++) {
+    pauses.push(pauses[j - 1] / 1.3)
+  }
+
+  console.log(pauses)
+  
+  
+  document.getElementById(bodiesGeometry[0]["hc-key"]).style.visibility = "visible";
+  
+  let i = 1;
+
+  function myLoop(i) {
+
+    setTimeout(function() {
+
+      document.getElementById(bodiesGeometry[i]["hc-key"]).style.visibility = "visible";
+      
+      i++;
+      if (i < bodiesGeometryLength) {
+        myLoop(i);
+      }
+
+    }, pauses[i])
   }
 
   myLoop(i)
