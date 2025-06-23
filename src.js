@@ -83,7 +83,7 @@ window.addEventListener('load', async function() {
               opacity: 0.95,
               borderWidth: 0.25,
               tooltip: {
-                  pointFormat:  "{point.properties.okrug}"
+                  pointFormat:  "{point.properties.name}"
                 }
           },
           {
@@ -114,7 +114,12 @@ window.addEventListener('load', async function() {
                   mouseOut: function() {
                     document.querySelectorAll(".park").forEach((p) => {
                       if (p.id == this["hc-key"]) {
-                        p.style.backgroundColor = "#498334"
+                        if (clickCounter == 2) {
+                          color = park_data.find((park) => park["hc-key"] == p.id).trade_density_color
+                          p.style.backgroundColor = color
+                        } else {
+                          p.style.backgroundColor = "#135623"
+                        }
                       }
                     })
                   },
@@ -150,6 +155,10 @@ window.addEventListener('load', async function() {
           //     lineWidth: 1,
           // },
       ],
+      
+      legend: {
+        enabled: false
+      }
 
       // xAxis: {
       //   min: 4144000,
@@ -277,7 +286,7 @@ window.addEventListener('load', async function() {
   };
 
   const ground = Bodies.rectangle(w / 2, h + 50, w + 100, 100, wallOptions);
-  const ground2 = Bodies.rectangle(w / 2, h - 20, w / 5, 100, wallOptions);
+  // const ground2 = Bodies.rectangle(w / 2, h - 20, w / 5, 100, wallOptions);
   const ceiling = Bodies.rectangle(w / 2, -50, w + 100, 100, wallOptions);
   // const leftWall = Bodies.rectangle(w * 0.3 - 50, h / 2, 100, h + 100, wallOptions);
   const rightWall = Bodies.rectangle(w + 50, h / 2, 100, h + 100, wallOptions);
@@ -343,6 +352,7 @@ window.addEventListener('load', async function() {
   
 
   document.getElementById("slide").innerHTML = slides[0]
+  // rollSlide(0)
 
   let m_pix = (
     chart.series[2].points[1].y
@@ -369,7 +379,18 @@ window.addEventListener('load', async function() {
 
   // bodiesGeometry.forEach((b) => addDOMBody(b))
 
+  console.log(bodiesGeometry)
+
   console.log("engine", engine)
+
+
+
+
+
+
+
+
+
 
   document.querySelector("#arrow").onclick = async function(e) {
 
@@ -384,19 +405,20 @@ window.addEventListener('load', async function() {
       rollSlide(1)
 
       bodiesGeometry.filter((b) => hcKeysLargestSmallest.includes(b["hc-key"])).forEach((b) => addDOMBody(b))
-      addDOMBodiesVisibility(bodiesGeometry.filter((b) => hcKeysLargestSmallest.includes(b["hc-key"])), 1000)
+      await addDOMBodiesVisibility(bodiesGeometry.filter((b) => hcKeysLargestSmallest.includes(b["hc-key"])), 0)
+    
       engine.world.bodies.forEach((b) => {
         if (hcKeysLargestSmallest.includes(b.label)) {
           Body.setStatic(b, false)
           Body.setMass(b, 1) //0.01 * (b.area))
         }
       });
-      
       await sleep(1000);
-      bodiesGeometry.filter((b) => !hcKeysLargestSmallest.includes(b["hc-key"])).forEach((b) => addDOMBody(b))
+
       bodiesGeometry
         .filter((b) => hcKeysLargestSmallest.includes(b["hc-key"]))
         .forEach((b) => document.getElementById(b["hc-key"]).style.zIndex = "2")
+      bodiesGeometry.filter((b) => !hcKeysLargestSmallest.includes(b["hc-key"])).forEach((b) => addDOMBody(b))
 
       // document.getElementById('map_highcharts').style.zIndex = "6";
 
@@ -406,14 +428,19 @@ window.addEventListener('load', async function() {
 
       rollSlide(2)
 
-      addDOMBodiesVisibility(bodiesGeometry.filter((b) => !hcKeysLargestSmallest.includes(b["hc-key"])), 500)
+      await addDOMBodiesVisibility(bodiesGeometry.filter((b) => !hcKeysLargestSmallest.includes(b["hc-key"])), 500)
       
-      await sleep(4000);
+      // await sleep(4000);
+
+      engine.world.bodies.filter((b) => hcKeysLargestSmallest.includes(b.label)).forEach((b) => {
+        console.log(b.label)
+        Body.applyForce(b, b.position, {x: 0.001, y: -0.015})
+      })
+
 
       Composite.add(engine.world, [iceCreammtjs]);
       (function rerender() {
         iceCream.render();
-        // Engine.update(engine);
         requestAnimationFrame(rerender);
       })()
       animateByMargin(
@@ -424,34 +451,25 @@ window.addEventListener('load', async function() {
         -20
       );
 
-
-      engine.world.bodies.filter((b) => hcKeysLargestSmallest.includes(b.label)).forEach((b) => {
-        console.log(b.label)
-        Body.applyForce(b, b.position, {x: 0, y: -0.015})
-      })
-      
-      await sleep(50);
-      Composite.add(engine.world, [
-        ground2,
-      ]);
+      // await sleep(50);
+      // Composite.add(engine.world, [
+      //   ground2,
+      // ]);
 
 
-      document.getElementById("coffee").style.backgroundImage = 'url("coffee.png")'
-      document.getElementById("park_alley").style.opacity = 0
-      
-      i = 0
-      colors = ["#e8e5f9", "#afa9f3", "#8d82d3"]
+      // i = 0
+      // colors = ["#e8e5f9", "#afa9f3", "#8d82d3"]
       document.querySelectorAll(".park").forEach((p) => {
-        // color = park_data.find((park) => park["hc-key"] == p.id).color
-        p.style.backgroundColor = colors[i]
-        i++
-        if ( i == 3) {
-          i = 0
-        }
+        color = park_data.find((park) => park["hc-key"] == p.id).trade_density_color
+        p.style.backgroundColor = color
+        // p.style.backgroundColor = colors[i]
+        // i++
+        // if ( i == 3) {
+        //   i = 0
+        // }
         // p.classList.add('trade')
       })
 
-    
       engine.world.bodies.forEach((b) => {
           if ((b.label != 'Rectangle Body') & (b.label != 'iceCream')) {
             Body.setStatic(b, false)
@@ -460,7 +478,9 @@ window.addEventListener('load', async function() {
           }
       });
 
-      await sleep(1000);
+      await sleep(3000);
+      document.getElementById("coffee").style.backgroundImage = 'url("coffee.png")'
+      document.getElementById("park_alley").style.opacity = 0
       if (w > 800) {
         document.getElementById('map_highcharts').style.height = "50vh"
         document.getElementById('map_highcharts').style.width = "30%"
@@ -481,26 +501,25 @@ window.addEventListener('load', async function() {
 
       clickCounter++;
 
+      console.log(engine.world.bodies)
+
     } else if (clickCounter == 2) {
 
 
       rollSlide(3)
 
 
-      document.getElementById("bicycle_road").style.backgroundImage = 'url("bicycle_road.png")'
+      document.getElementById("bicycle_road").style.backgroundImage = 'url("bicycle_road.jpg")'
+      document.getElementById("bicycle_road").style.filter = 'blur(4px)'
       document.getElementById("coffee").style.opacity = 0
 
 
-      for (i = 0; i < engine.world.bodies.length; i++) {
-          
-        b = engine.world.bodies[i]
-        if (data[i].area < 150 & b.label != 'Rectangle Body' & b.label != 'iceCream') {
-          Composite.remove(engine.world, b)
-          document.getElementById(b.label).remove();
-          i = i - 1
+      park_data.forEach((p) => {
+        if (p.area < 150) {
+          Composite.remove(engine.world, engine.world.bodies.find((b) => b.label == p["hc-key"]))
+          document.getElementById(p["hc-key"]).remove();
         }
-      }
-
+      })
 
 
       document.querySelectorAll(".park").forEach((p) => {
@@ -539,7 +558,7 @@ window.addEventListener('load', async function() {
                 }
             });
             i++;  
-            if (i < 9) { 
+            if (i < 8) { 
               scale_parks()
             } 
           }, 0.1)
@@ -555,19 +574,37 @@ window.addEventListener('load', async function() {
 
       await sleep(500);
 
-      function drawSpirals () {
+      remainingParkData = park_data.filter((p) => engine.world.bodies.some((b) => b.label === p["hc-key"]))
+      lengthLargest = remainingParkData.reduce((max, p) => max.bicycle_road_length > p.bicycle_road_length ? max : p)["bicycle_road_length"]
 
-        const path = getPath({x:400,y:400}, 0, 50, 0, 5*360, 30);
-        const path2 = getPath({x:400,y:400}, 0, 60, 0, 3*270, 30);
+
+
+      console.log(1234, remainingParkData.length)
+
+
+      function drawSpirals () {
+      
+        // const path = getPath({x:400,y:400}, 0, 50, 0, spiraLen, 30);
+        // const path2 = getPath({x:400,y:400}, 0, 60, 0, 3*270, 30);
 
         document.querySelectorAll(".spiral").forEach((s) => {
-            s.style.zIndex = "1";
+
+            parkHCKey = s.getAttribute("id").slice(7)
+            console.log(parkHCKey)
+            const len = park_data.find((park) => park["hc-key"] == parkHCKey)["bicycle_road_length"]
+
+
+            const spiraLen = len / lengthLargest * (5*360)
+
+            console.log( len / lengthLargest)
+            const path = getPath({x:400,y:400}, 0, 50, 0, spiraLen, 30);
             s.setAttribute("d", path);
+            s.style.zIndex = "1";
         });
-        document.querySelectorAll(".spiral2").forEach((s) => {
-            s.style.zIndex = "2";
-            s.setAttribute("d", path2);
-        });
+        // document.querySelectorAll(".spiral2").forEach((s) => {
+        //     s.style.zIndex = "2";
+        //     s.setAttribute("d", path2);
+        // });
       }
 
       drawSpirals()
@@ -582,7 +619,8 @@ window.addEventListener('load', async function() {
         rollSlide(1)
 
 
-        document.getElementById("evening_park").style.backgroundImage = 'url("evening_park.png")'
+        document.getElementById("evening_park").style.backgroundImage = 'url("evening_park.jpg")'
+        document.getElementById("evening_park").style.filter = 'blur(4px)'
         document.getElementById("bicycle_road").style.opacity = 0
 
 
@@ -595,10 +633,50 @@ window.addEventListener('load', async function() {
 
       // await sleep(200);sss
       // engine.world.bodies.forEach((b) => b.render.fillStyle ="#272757")
+      
+      
+      console.log(123456, remainingParkData.length)
+      remainingParkData = park_data.filter((p) => engine.world.bodies.some((b) => b.label === p["hc-key"]))
+      
+      
+      // const remainingParkData = park_data.filter((p) => {
+      //   return bodiesGeometry.some((b) => {
+      //     return  b.id === p["hc-key"];
+      //   });
+      // });
+
+      ligthsLargest = remainingParkData.reduce((max, p) => max.street_lights_density > p.street_lights_density ? max : p)["street_lights_density"]
+      // ligthsSmallest = remainingParkData.reduce((min, p) => min.street_lights_density > p.street_lights_density ? min : p)["street_lights_density"]
+
+      console.log(ligthsLargest)
+      
       document.querySelectorAll(".park").forEach((p) => {
         // color = park_data.find((park) => park["hc-key"] == p.id).color
+
+        let light = park_data.find((park) => park["hc-key"] == p.id)["street_lights_density"]
+
+        let brightness = (light / ligthsLargest * 60)
+
+
+        console.log(light)
+
+        console.log(brightness)
+
         p.style.backgroundColor = "#272757"
-        p.style.boxShadow = "inset 0px 0px 50px gold"
+
+
+       p.style.backgroundColor ="hsl(228, 40.70%, 20.60%)"
+
+        //  color: hsl(50, 88%, 80%)
+
+        hsl = `hsl(50, 88%, ${20+brightness}%)`
+        // hsl = `hsl(51, 100%, ${15+brightness}%)`
+        p.style.boxShadow = `inset 0px 0px 50px ${hsl}, inset 0px 0px 50px ${hsl}, inset 0px 0px 50px ${hsl}, inset 0px 0px 50px ${hsl}`
+
+        // p.style.filter = `brightness(${25+brightness}%)`
+        
+
+        // p.style.boxShadow = "0 0 50px gold,0 0 10px gold, 0 0 10px gold,0 0 10px gold, 0 0 10px gold"
         // p.classList.add('trade')
       })
       
@@ -627,14 +705,27 @@ window.addEventListener('load', async function() {
 
       label = hoveredShapes[0].label
 
+      park = park_data.find((p) => p["hc-key"] == label)
+
       if ((label != 'Rectangle Body') & (label != 'iceCream')) {
         bubble = document.getElementById(label)
         bubble.children[0].style.visibility = "visible"
 
+        if ((clickCounter == 0) | (clickCounter == 1)) {
+          bubble.children[0].innerHTML = park.name + "<br /><br />" + `Плошадь:<br />${park.area.toFixed(2)} га`
+        } else if (clickCounter == 2) {
+          bubble.children[0].innerHTML = park.name + "<br /><br />" + `Густота объектов торговли:<br />${park.trade_density.toFixed(2)} шт/га`
+        } else if (clickCounter == 3) {
+          bubble.children[0].innerHTML = park.name + "<br /><br />" + `Протяженность велодорожек:<br />${park.bicycle_road_length.toFixed(0)} м`
+        } else if (clickCounter == 4) {
+          bubble.children[0].innerHTML = park.name + "<br /><br />" + `Густота опор освещения:<br />${park.street_lights_density.toFixed(2)} шт/га`
+        }
         chart.series[1].data.find((d) => d["hc-key"] == label).setState('hover')
         chart.tooltip.refresh(chart.series[1].data.find((d) => d["hc-key"] == label))
-
       }
+
+
+
 
     };
 
@@ -829,6 +920,7 @@ function rollSlide(slideNum) {
 
 
   document.getElementById("slide_next").innerHTML = slides[slideNum]
+  // document.getElementById("slide").innerHTML = slides[slideNum-1]
 
   animateByMargin(
     document.getElementById('slide'),
@@ -846,9 +938,9 @@ function rollSlide(slideNum) {
     20
   );
 
-  document.getElementById('slide_next').setAttribute("id", "slide_")
-  document.getElementById('slide').setAttribute("id", "slide_next")
-  document.getElementById('slide_').setAttribute("id", "slide")
+  // document.getElementById('slide_next').setAttribute("id", "slide_")
+  // document.getElementById('slide').setAttribute("id", "slide_next")
+  // document.getElementById('slide_').setAttribute("id", "slide")
 
   // document.getElementById("slide_next").innerHTML = slides[slideNum]
 
@@ -868,7 +960,7 @@ async function addDOMBody(bodyGeometry) {
 
   let div = document.createElement('div');
   // div.innerHTML = '<h1 class="tooltiptext">' + data[i].name + "</h1>";
-  div.innerHTML = '<p class="tooltiptext">' + bodyGeometry.name + "</p>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800"><path class="spiral" d="" fill="none" stroke="#fdeecd" stroke-width="15"/><path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
+  div.innerHTML = '<p class="tooltiptext">' + bodyGeometry.name + "</p>" + '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 800 800">' + `<path class="spiral" id="spiral_${bodyGeometry['hc-key']}"d="" fill="none" stroke="#fdeecd" stroke-width="15"/>` + '<path class="spiral2" d="" fill="none" stroke="#888b90" stroke-width="15"/></svg>';
   div.setAttribute('class', 'park'); // and make sure myclass has some styles in css
   div.setAttribute('id', bodyGeometry["hc-key"]); // and make sure myclass has some styles in css
   div.setAttribute('style', "top: 0px; left:0 px; z-index: 7; visibility: hidden")
@@ -924,7 +1016,7 @@ async function addDOMBody(bodyGeometry) {
 
 }
 
-async function addDOMBodiesSlowly(bodiesGeometry) {
+function addDOMBodiesSlowly(bodiesGeometry) {
 
   const bodiesGeometryLength = bodiesGeometry.length;
 
@@ -956,36 +1048,53 @@ async function addDOMBodiesSlowly(bodiesGeometry) {
 
 // bodiesGeometry.forEach((b) => addDOMBody(b))
 
-async function addDOMBodiesVisibility(bodiesGeometry, pause) {
+// function addDOMBodiesVisibility(bodiesGeometry, pause) {
 
-  const bodiesGeometryLength = bodiesGeometry.length;
+//   const bodiesGeometryLength = bodiesGeometry.length;
   
+//   let pauses = [pause]
+//   for (j = 1; j < bodiesGeometryLength; j++) {
+//     pauses.push(pauses[j - 1] / 1.3)
+//   }
+
+//   console.log(pauses)
+  
+  
+//   document.getElementById(bodiesGeometry[0]["hc-key"]).style.visibility = "visible";
+  
+//   let i = 1;
+
+//   function myLoop(i) {
+
+//     setTimeout(function() {
+
+//       document.getElementById(bodiesGeometry[i]["hc-key"]).style.visibility = "visible";
+      
+//       i++;
+//       if (i < bodiesGeometryLength) {
+//         myLoop(i);
+//       }
+
+//     }, pauses[i])
+//   }
+
+//   myLoop(i)
+
+// }
+
+
+
+async function addDOMBodiesVisibility(bodiesGeometry, pause) { // We need to wrap the loop into an async function for this to work
+  
+  const bodiesGeometryLength = bodiesGeometry.length;
   let pauses = [pause]
-  for (j = 1; j < bodiesGeometryLength; j++) {
+  for (j = 1; j < bodiesGeometryLength - 1; j++) {
     pauses.push(pauses[j - 1] / 1.3)
   }
+  pauses.push[0]
 
-  console.log(pauses)
-  
-  
-  document.getElementById(bodiesGeometry[0]["hc-key"]).style.visibility = "visible";
-  
-  let i = 1;
-
-  function myLoop(i) {
-
-    setTimeout(function() {
-
-      document.getElementById(bodiesGeometry[i]["hc-key"]).style.visibility = "visible";
-      
-      i++;
-      if (i < bodiesGeometryLength) {
-        myLoop(i);
-      }
-
-    }, pauses[i])
+  for (var i = 0; i < bodiesGeometryLength; i++) {
+    document.getElementById(bodiesGeometry[i]["hc-key"]).style.visibility = "visible";
+    await sleep(pauses[i]); // then the created Promise can be awaited
   }
-
-  myLoop(i)
-
 }

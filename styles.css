@@ -46,38 +46,60 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
-  transition: all 5s ease;
+  transition: all 2s ease;
 }
 
-.title {
+
+#header {
   position: absolute;
-  z-index: 5;
+  z-index: 7;
   top: 0;
   left: 0;
   height: 10vh;
-  width: 20vw;
+  width: 30vw;
+} 
+
+
+#title {
+  position: relative;
+  display: inline-block;
+  max-width: 25vw;
   padding: 1vw;
+  display: inline-block
 }
 
+
+#arrow_container {
+  position: relative;
+  display: inline-block;
+  /* height: 5vh;
+  width: 2vw; */
+  filter: drop-shadow(0px 0px 5px #ffefce);
+  transition: all 0.5s ease;
+}
+
+#arrow_container:hover {
+  filter: drop-shadow(0px 0px 10px hsl(51, 100%, 70%))
+}
 
 #arrow {
-  position: absolute;
-  z-index: 15;
-  top: 4vh;
-  left: 20vw;
   height: 5vh;
-  width: 5vw;
+  width: 2vw;
   clip-path: polygon(
-    0% 20%,
-    60% 20%,
-    60% 0%,
+    0% 0%,
+    50% 0%,
     100% 50%,
-    60% 100%,
-    60% 80%,
-    0% 80%
+    50% 100%,
+    0% 100%,
+    50% 50%
   );
   background-color: #135623;
+  /* box-shadow: 0px 0px 2px #ffefce; */
 }
+
+
+
+
 
 h1 {
     /* position: absolute; */
@@ -98,21 +120,22 @@ h1 {
   width: 100vw;
   height: 100vh;
   background-color: #85888280;
-  transition: all 5s ease;
+  transition: all 3s ease;
 }
 
 
 #slider{
     position: absolute;
-    z-index: 4;
+    z-index: 6;
     padding: 0;
     top: 10vh;
     left: 0;
     width: 30vw;
-    height: 90vh;
+    height: 40vh;
     /* background-color: #858882B3; */
     /* background-color: #85888280; */
     transition: all 2s ease;
+    /* overflow: auto; */
     
 }
 
@@ -123,7 +146,8 @@ h1 {
     margin: 0;
     margin-top: 0;
     top: 0;
-    font-size: 1.5em;
+    font-size: 2em;
+    overflow: auto;
     /* transition: all 2s ease; */
 }
 
@@ -135,13 +159,16 @@ h1 {
     margin: 0;
     margin: 0;
     top: -1000px;
-    font-size: 1.5em;
+    height: 40vh;
+    font-size: 2rem;
+    overflow: auto;
     /* transition: all 2s ease; */
 }
 
 
 p {
-    padding: 1vw; 
+    padding: 1vw;
+
     /* background-color: #858882B3; */
     /* border-radius:  0.5vh; */
 }
@@ -157,7 +184,7 @@ p {
     z-index: 6;
     /* background-color: #85888280; */
     /* border-radius: 0.5vh; */
-    transition: all 5s ease;
+    transition: all 3s ease;
 }
 
 
@@ -205,7 +232,7 @@ p {
   /* width: 140px; */
   /* clip-path: circle(50px); */
 
-  transition: background-color 1.5s, box-shadow 1.5s ;
+  transition: background-color 0.5s, box-shadow 0.5s ;
   height: 100px;
   width: 100px;
   background-color: #135623;
@@ -223,6 +250,19 @@ p {
   /* text-shadow: 2px 2px 3px #38e; */
 }
 
+
+/* .park::after {
+  position: absolute;
+  content: '';
+  display: inline-block;
+  transition: background-color 0.5s, box-shadow 0.5s ;
+  height: 50%;
+  width: 50%;
+  background-color: gold;
+  border-radius: 50%;
+  box-shadow: 0 0 50px gold,0 0 10px gold, 0 0 10px gold,0 0 10px gold, 0 0 10px gold;
+  z-index: 2;
+} */
 
 .park.trade {
   /* transition: background-color 1000ms linear; */
