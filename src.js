@@ -81,10 +81,16 @@ window.addEventListener('load', async function() {
               color: "#f5f5f5",
               // color: "#858882B3",
               opacity: 0.95,
-              borderWidth: 0.25,
+              borderWidth: 0.1,
               tooltip: {
-                  pointFormat:  "{point.properties.name}"
-                }
+                pointFormat:  "{point.properties.name}"
+              },
+              states: {
+                hover: {
+                    // borderColor: 'gray',
+                    borderWidth: 0.25,
+                },
+              },
           },
           {
               type: 'map',
@@ -92,12 +98,13 @@ window.addEventListener('load', async function() {
               mapData: Highcharts.geojson(parks_geojson),
               color: "#135623",
               name: 'Парки',
-              borderWidth: 0,
+              borderWidth: 0.1,
               states: {
                 hover: {
                     // color: '#a4edba',
                     color: '#FF0000',
-                    borderColor: 'gray'
+                    borderColor: 'gray',
+                    borderWidth: 0.25,
                 },
               },
 
@@ -117,6 +124,8 @@ window.addEventListener('load', async function() {
                         if (clickCounter == 2) {
                           color = park_data.find((park) => park["hc-key"] == p.id).trade_density_color
                           p.style.backgroundColor = color
+                        } else if (clickCounter == 4) {
+                           p.style.backgroundColor = "hsl(228, 40.70%, 20.60%)"
                         } else {
                           p.style.backgroundColor = "#135623"
                         }
@@ -514,12 +523,12 @@ window.addEventListener('load', async function() {
       document.getElementById("coffee").style.opacity = 0
 
 
-      park_data.forEach((p) => {
-        if (p.area < 150) {
-          Composite.remove(engine.world, engine.world.bodies.find((b) => b.label == p["hc-key"]))
-          document.getElementById(p["hc-key"]).remove();
-        }
-      })
+      // park_data.forEach((p) => {
+      //   if (p.area < 150) {
+      //     Composite.remove(engine.world, engine.world.bodies.find((b) => b.label == p["hc-key"]))
+      //     document.getElementById(p["hc-key"]).remove();
+      //   }
+      // })
 
 
       document.querySelectorAll(".park").forEach((p) => {
@@ -594,7 +603,7 @@ window.addEventListener('load', async function() {
             const len = park_data.find((park) => park["hc-key"] == parkHCKey)["bicycle_road_length"]
 
 
-            const spiraLen = len / lengthLargest * (5*360)
+            const spiraLen = len / lengthLargest * (7*360)
 
             console.log( len / lengthLargest)
             const path = getPath({x:400,y:400}, 0, 50, 0, spiraLen, 30);
@@ -616,7 +625,7 @@ window.addEventListener('load', async function() {
 
         await sleep(200);
 
-        rollSlide(1)
+        rollSlide(4)
 
 
         document.getElementById("evening_park").style.backgroundImage = 'url("evening_park.jpg")'
@@ -700,7 +709,8 @@ window.addEventListener('load', async function() {
     if (hoveredShapes.length > 0) {
 
       document.querySelectorAll(".park").forEach((b) => {
-          b.children[0].style.visibility = "hidden"
+          // b.children[0].style.visibility = "hidden"
+          b.children[0].style.opacity = 0
       });
 
       label = hoveredShapes[0].label
@@ -709,16 +719,32 @@ window.addEventListener('load', async function() {
 
       if ((label != 'Rectangle Body') & (label != 'iceCream')) {
         bubble = document.getElementById(label)
-        bubble.children[0].style.visibility = "visible"
+        // bubble.children[0].style.visibility = "visible"
+        bubble.children[0].style.opacity = 1
 
         if ((clickCounter == 0) | (clickCounter == 1)) {
           bubble.children[0].innerHTML = park.name + "<br /><br />" + `Плошадь:<br />${park.area.toFixed(2)} га`
         } else if (clickCounter == 2) {
-          bubble.children[0].innerHTML = park.name + "<br /><br />" + `Густота объектов торговли:<br />${park.trade_density.toFixed(2)} шт/га`
+          if (park.trade_density > 0) {
+            val = `Густота объектов торговли:<br />${park.trade_density.toFixed(3)} шт/га`
+          } else {
+            val = `Объекты торговли отсутствуют`
+          }
+          bubble.children[0].innerHTML = park.name + '<br /><br />' + val
         } else if (clickCounter == 3) {
-          bubble.children[0].innerHTML = park.name + "<br /><br />" + `Протяженность велодорожек:<br />${park.bicycle_road_length.toFixed(0)} м`
+          if (park.bicycle_road_length > 0) {
+            val = `Протяженность велодорожек:<br />${park.bicycle_road_length.toFixed(0)} м`
+          } else {
+            val = `Велодорожки отсутствуют`
+          }
+          bubble.children[0].innerHTML = park.name + '<br /><br />' + val
         } else if (clickCounter == 4) {
-          bubble.children[0].innerHTML = park.name + "<br /><br />" + `Густота опор освещения:<br />${park.street_lights_density.toFixed(2)} шт/га`
+          if (park.street_lights_density > 0) {
+            val = `Густота опор освещения:<br />${park.street_lights_density.toFixed(2)} шт/га`
+          } else {
+            val = `Освещение отсутствует`
+          }
+          bubble.children[0].innerHTML = park.name + '<br /><br />' + val
         }
         chart.series[1].data.find((d) => d["hc-key"] == label).setState('hover')
         chart.tooltip.refresh(chart.series[1].data.find((d) => d["hc-key"] == label))
@@ -732,7 +758,8 @@ window.addEventListener('load', async function() {
     if (hoveredShapes.length == 0) {
 
       document.querySelectorAll(".park").forEach((b) => {
-          b.children[0].style.visibility = "hidden"
+          // b.children[0].style.visibility = "hidden"
+          b.children[0].style.opacity = 0
       });
 
       chart.series[1].data.forEach((d) => {

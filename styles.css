@@ -83,7 +83,7 @@ body {
 }
 
 #arrow {
-  height: 5vh;
+  height: 4vh;
   width: 2vw;
   clip-path: polygon(
     0% 0%,
@@ -106,7 +106,7 @@ h1 {
     z-index: 1;
     /* padding: 0.5em; */
     /* margin: 0; */
-    font-size: 4rem;
+    font-size: 3rem;
     /* flex: 1; */
 }
 
@@ -146,7 +146,7 @@ h1 {
     margin: 0;
     margin-top: 0;
     top: 0;
-    font-size: 2em;
+    font-size: 1.5em;
     overflow: auto;
     /* transition: all 2s ease; */
 }
@@ -160,14 +160,17 @@ h1 {
     margin: 0;
     top: -1000px;
     height: 40vh;
-    font-size: 2rem;
+    font-size: 1.5em;
     overflow: auto;
     /* transition: all 2s ease; */
 }
 
 
 p {
-    padding: 1vw;
+    padding-left: 1vw;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    padding-right: 1vw;
 
     /* background-color: #858882B3; */
     /* border-radius:  0.5vh; */
@@ -294,7 +297,8 @@ p {
   /* font-size: 11vw; */
   position: absolute;
   /* top: -2em; */
-  visibility: hidden;
+  /* visibility: hidden; */
+  opacity: 0;
   z-index: 2;
   padding: 1vh;
   font-size: 1em;
@@ -303,6 +307,7 @@ p {
   width: 15vw;
   background-color: #85888280;
   border-radius: 0.5vh;
+  transition: all 0.5s ease;
 
 }
 
